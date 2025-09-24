@@ -1,0 +1,25 @@
+footer {
+  background: #111;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+footer .contact-info h2 {
+  font-size: 1.5rem;
+}
+
+footer .contact-info p {
+  font-size: 1rem;
+  margin: 5px 0;
+}
+
+@media (max-width: 480px) {
+  footer .contact-info h2 {
+    font-size: 1.2rem;
+  }
+
+  footer .contact-info p {
+    font-size: 0.9rem;
+  }
+}

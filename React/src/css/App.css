@@ -1,0 +1,55 @@
+/* 모든 요소의 기본 여백을 초기화 */
+
+#root {
+  max-width: 100%;
+  /* max-width: 1280px; */
+  margin: 0 auto;
+  /* 기존 패딩 부여 */
+  /* padding: 2rem; */
+  /* 사진 꽉 채우려고 padding 0으로 */
+  /* padding: 0; */
+  text-align: center;
+}
+
+.H1 {
+  font-size: 2rem;
+  padding-bottom: 5%;
+}
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.appjsx_btn {
+  margin: 5% 0% 5% 0%;
+}
+.read-the-docs {
+  color: #888;
+}

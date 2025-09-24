@@ -1,0 +1,188 @@
+.main-header {
+  width: 100%;
+}
+
+.background-container {
+  /* 기준이 되는 부모 */
+  position: relative;
+  width: 100%;
+  /* 화면 높이 비율 기준 현재 100% */
+  height: 100vh;
+  overflow: hidden;
+}
+
+.header-image {
+  width: 100%;
+  height: 100%;
+  /* 이미지가 비율 유지하며 꽉 차게 */
+  object-fit: cover;
+}
+
+.icon-container {
+  /* 부모요소 즉 사진과 겹치게 하려고 부여하는 것 */
+  position: absolute;
+  display: flex;
+  top: 20px;
+  right: 40px;
+  gap: 20px;
+  align-items: center;
+  /* 반응형 단위 */
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+}
+.user-name {
+  font-size: 20px;
+}
+/* 로그인 메뉴 컨테이너 위치 설정 */
+.login-menu-container {
+  position: relative;
+  display: inline-block;
+}
+/* 드롭다운 메뉴 스타일 (기본적으로 숨김) */
+.dropdown-menu {
+  position: absolute;
+  top: 100%; /* 아이콘 바로 아래에 위치 */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.5); /* 배경색 */
+  border: 1px solid #ccc; /* 경계선 */
+  padding: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  display: none; /* ✅ 기본적으로 숨김 */
+  flex-direction: column;
+  gap: 5px;
+  border-radius: 10px;
+}
+
+/* 마우스를 올렸을 때 드롭다운 메뉴 표시 */
+.login-menu-container:hover .dropdown-menu {
+  display: flex; /* ✅ 마우스 오버 시 표시 */
+}
+
+/* 메뉴 아이템 스타일 */
+.dropdown-menu .menu-item {
+  color: #333;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.dropdown-menu .menu-item:hover {
+  /* background-color: #f0f0f0; */
+}
+
+/* 기존 로그인 아이콘 스타일 */
+.login-icon {
+  /* 기존 스타일 유지 */
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.menu_area {
+  /* 부모(.background-container) 기준으로 위치함 */
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7); /* 반투명 배경 */
+  border-radius: 8px;
+  padding: 10px;
+  /* 기본은 숨김 */
+  display: none;
+  /* z-index: 10; */
+}
+
+.menu_area.open {
+  /* 햄버거 클릭 시 보임 */
+  display: block;
+}
+
+.menu_area ul {
+  /* 리스트 스타일 앞에 - 을 없앤 것! */
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  /* 부모인 현재 ul 태그는 flex 컨테이거가 된다고 함.
+  자식 요소인 li태그에 효과를 부여 하겠다고 미리 선언 하는 것 */
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.menu_area li a {
+  color: white;
+  /* text-decoration: none; */
+  font-size: 1.2rem;
+}
+
+.menu_area li a:hover {
+  /* 색 부여 */
+  color: #f76d37;
+  /* 언더라인 표시 */
+  text-decoration: underline;
+}
+
+/* 메인 텍스트 */
+.main-text {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  text-align: center;
+}
+
+.main-text h1 {
+  /* 화면 너비에 따라 글자 크기 조정 */
+  font-size: 5vw;
+}
+
+.main-text h2 {
+  font-size: 2.5vw;
+}
+
+.main-text p {
+  font-size: 2vw;
+}
+
+/* ============ 반응형 ============ */
+
+/* 태블릿 이하 */
+@media (max-width: 768px) {
+  .main-text h1 {
+    font-size: 8vw;
+  }
+
+  .main-text h2 {
+    font-size: 5vw;
+  }
+
+  .main-text p {
+    font-size: 4vw;
+  }
+}
+
+/* 모바일 이하 */
+@media (max-width: 480px) {
+  .hamburger {
+    font-size: 1.8rem;
+  }
+
+  .menu_area li a {
+    font-size: 1rem;
+  }
+
+  .main-text h1 {
+    font-size: 10vw;
+  }
+
+  .main-text h2 {
+    font-size: 6vw;
+  }
+
+  .main-text p {
+    font-size: 5vw;
+  }
+}
