@@ -10,12 +10,19 @@ const LoginForm = ({ onClose, onFormOpen }) => {
   // 1. loginError 상태를 추가합니다. 초기값은 false
   const [loginError, setLoginError] = useState(false);
 
-  // useAuth 훅을 사용하여 login 함수를 가져옵니다.
+  // useAuth 훅을 사용하여 login 함수를 가져옴
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login({ text, password });
+
+    // 💡 수정된 부분: text 대신 백엔드 DTO 필드명인 emailOrIdOrPhone을 사용합니다.
+    const loginData = {
+      emailOrIdOrPhone: text, // 'text' 상태 변수의 값을 'emailOrIdOrPhone' 키에 담음
+      password: password,
+    };
+
+    const success = await login(loginData);
     if (success) {
       // 로그인 성공 시 모달 닫기
       setLoginError(false); // 오류 메시지 초기화

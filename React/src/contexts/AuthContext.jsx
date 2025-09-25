@@ -15,15 +15,39 @@ export const AuthProvider = ({ children }) => {
   );
 
   // 로그인 함수
-  const login = async (emailOrIdOrPhone, password) => {
+  // const login = async (loginData) => {
+  //   console.log(loginData);
+  //   try {
+  //     const response = await axios.post(
+  //       'http://localhost:8080/api/auth/login',
+  //       {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify(loginData), // loginData를 그대로 전송해야 함
+  //       }
+  //     );
+  //     const userData = response.data;
+
+  //     setUser(userData);
+  //     setIsLoggedIn(true);
+  //     sessionStorage.setItem('user', JSON.stringify(userData));
+
+  //     return true;
+  //   } catch (error) {
+  //     console.error(error);
+  //     return false;
+  //   }
+  // };
+  // 로그인 함수
+  const login = async (loginData) => {
+    console.log('클라이언트에서 서버로 보낼 데이터:', loginData); // {emailOrIdOrPhone: 'j', password: 'j'}
     try {
+      // 💡 수정! axios는 두 번째 인자로 데이터를 받습니다.
       const response = await axios.post(
         'http://localhost:8080/api/auth/login',
-        {
-          emailOrIdOrPhone,
-          password,
-        }
+        loginData // loginData 객체 자체를 바로 전달
       );
+
       const userData = response.data;
 
       setUser(userData);
@@ -36,7 +60,6 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
   };
-
   // 로그아웃
   const logout = () => {
     setUser(null);

@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.validation.constraints.NotBlank; 
+import jakarta.validation.constraints.Size;
+
 @Entity
 @Table(name = "users")  // MySQL 테이블 이름과 맞춤
 @Getter
@@ -23,13 +26,13 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // @NotBlank
+    @NotBlank
     @Column(nullable = false)
     private String username;
 
     // @Size(min = 8)
     @Column(nullable = false)
-    // @JsonIgnore
+    @JsonIgnore
     private String password;
     // JSON 응답에 포함 안 되게 하는 것! 또는 DTO(UserResponseDTO)를 만들어서 password 필드 자체를 빼버리기.
 
