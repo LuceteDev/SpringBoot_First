@@ -8,7 +8,7 @@ Spring Boot + React 실습 프로젝트
 # 개발 왕초보 이기에 정리, 코드 작성, 파일 관리, 미흡 주의!
 
 
-[![Notion](https://img.shields.io/badge/Notion-Python_Study-000000?style=flat&logo=notion&logoColor=white)](https://www.notion.so/Web-project-26a140ad7c83800287bed9ea0cb03eec?source=copy_link)
+[![Notion](https://img.shields.io/badge/Notion-Python_Study_with_pomodoro_project-000000?style=flat&logo=notion&logoColor=white)](https://www.notion.so/9-pomodoro-_-life-Project-269140ad7c8380c48226f6794355d1ca?source=copy_link)
 
 [**🧑‍💻 개인 학습 및 성장 기록 노션 링크**](https://www.notion.so/A-journey-to-find-myself-25f140ad7c83802b8ed6c129c5e16d37?source=copy_link)
 
