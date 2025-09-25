@@ -6,7 +6,7 @@ import FindIdForm from '../components/FindIdForm.jsx';
 import FindPwForm from '../components/FindPwForm.jsx';
 import MyPageForm from '../components/MyPageForm.jsx';
 import '../css/Header.css';
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -3,6 +3,9 @@ import GlobalStyle from '../GlobalStyle';
 import reactLogo from '/imges/logo_images/react.svg';
 import viteLogo from '/imges/logo_images/vite.svg';
 import djangoLogo from '/imges/logo_images/django.svg';
+import SprintBootLogo from '/imges/logo_images/SpringBoot.svg';
+import PythonLogo from '/imges/logo_images/Python.svg';
+
 import '../css/App.css';
 import {
   SocialIcon,
@@ -12,7 +15,7 @@ import {
 } from '../components/SocialIcon';
 
 import { Link } from 'react-router-dom';
-import { AuthProvider } from '../services/AuthContext';
+import { AuthProvider } from '../contexts/AuthContext';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -28,14 +31,21 @@ function App() {
           <a href="https://react.dev" target="_blank">
             <img src={reactLogo} className="logo react" alt="React logo" />
           </a>
-          <a href="https://www.djangoproject.com/" target="_blank">
-            <img src={djangoLogo} className="logo django" alt="Django logo" />
+          <a href="https://spring.io/" target="_blank">
+            <img
+              src={SprintBootLogo}
+              className="logo django"
+              alt="SpringBoot logo"
+            />
+          </a>
+          <a href="https://www.python.org/" target="_blank">
+            <img src={PythonLogo} className="logo django" alt="Python logo" />
           </a>
         </div>
         <h1 className="H1">
           Welcome to Lucete's <br></br>Development Journey
         </h1>
-        <h2>Vite + React + Django</h2>
+        <h2>Vite + React + SpringBoot + Python</h2>
         <div className="card">
           <button
             className="appjsx_btn"

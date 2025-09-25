@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/login.css';
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const SignUpForm = ({ onClose, onFormOpen }) => {
   const [email, setEmail] = useState('');
@@ -11,7 +11,9 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  // 아직 프론트 영역, 여기에서 contexts/AuthContext 의 signup 호출
   const { signUp } = useAuth();
+  const user_id = email.split('@')[0]; // 이메일 @ 앞부분
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,12 +21,14 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
+    // camelCase 그대로 전송해야함
     const userData = {
+      userId: user_id,
       email,
       password,
       username,
       address,
-      phone_number: phoneNumber,
+      phoneNumber,
     };
 
     const success = await signUp(userData);
@@ -92,6 +96,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div className="input-group">
@@ -103,6 +108,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
               placeholder="비밀번호를 다시 입력하세요"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div className="input-group">

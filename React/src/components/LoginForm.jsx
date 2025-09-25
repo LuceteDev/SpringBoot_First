@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/login.css';
 
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginForm = ({ onClose, onFormOpen }) => {
   const [text, settext] = useState('');
@@ -81,6 +81,7 @@ const LoginForm = ({ onClose, onFormOpen }) => {
               value={password}
               // 5. onChange 핸들러를 수정된 함수로 연결
               onChange={handlePasswordChange}
+              autoComplete="current-password"
             />
           </div>
           <div className="login-set">

@@ -1,6 +1,6 @@
 import React from 'react';
 import '../css/login.css';
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // onFormOpen 프롭을 받도록 수정
 const MyPageForm = ({ onClose, onFormOpen }) => {
