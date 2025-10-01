@@ -39,6 +39,9 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
       setUsername('');
       setAddress('');
       setPhoneNumber('');
+
+      // 회원가입 성공 시 자동으로 로그인 폼으로 이동
+      onFormOpen('login');
     }
   };
 

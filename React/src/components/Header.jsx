@@ -12,7 +12,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalForm, setModalForm] = useState(null);
 
-  const { isLoggedIn, logout, username } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -47,8 +47,14 @@ const Header = () => {
         {/* 로그인 아이콘과 햄버거를 묶는 컨테이너 추가 */}
         <div className="icon-container">
           {/* ✅ 로그인 상태일 때만 사용자 이름 표시 */}
-          {isLoggedIn && username && (
-            <span className="user-name">환영합니다 {username}님</span>
+          {isLoggedIn && user.username && (
+            <span className="user-name">
+              환영합니다 {user.username}님{/* {user.id} */}
+              {/* {user.email} */}
+              {/* {user.userId} */}
+              {/* {user.address} */}
+              {/* {user.phoneNumber} */}
+            </span>
           )}
           {/* ✅ 로그인 아이콘과 메뉴를 감싸는 컨테이너 추가 */}
           <div className="login-menu-container">

@@ -15,30 +15,6 @@ export const AuthProvider = ({ children }) => {
   );
 
   // 로그인 함수
-  // const login = async (loginData) => {
-  //   console.log(loginData);
-  //   try {
-  //     const response = await axios.post(
-  //       'http://localhost:8080/api/auth/login',
-  //       {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify(loginData), // loginData를 그대로 전송해야 함
-  //       }
-  //     );
-  //     const userData = response.data;
-
-  //     setUser(userData);
-  //     setIsLoggedIn(true);
-  //     sessionStorage.setItem('user', JSON.stringify(userData));
-
-  //     return true;
-  //   } catch (error) {
-  //     console.error(error);
-  //     return false;
-  //   }
-  // };
-  // 로그인 함수
   const login = async (loginData) => {
     console.log('클라이언트에서 서버로 보낼 데이터:', loginData); // {emailOrIdOrPhone: 'j', password: 'j'}
     try {
@@ -50,14 +26,16 @@ export const AuthProvider = ({ children }) => {
 
       const userData = response.data;
 
+      // 전역 user 상태 변경
       setUser(userData);
+      // 전역 로그인 상태 true로
       setIsLoggedIn(true);
       sessionStorage.setItem('user', JSON.stringify(userData));
-
-      return true;
+      console.log('userData 확인' + userData);
+      return userData;
     } catch (error) {
       console.error(error);
-      return false;
+      return null;
     }
   };
   // 로그아웃
@@ -81,7 +59,14 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       if (error.response && error.response.status === 409) {
-        alert('이미 존재하는 이메일입니다.');
+        const serverMessage = error.response.data;
+        if (serverMessage === 'EMAIL_ALREADY_EXISTS') {
+          alert('이미 존재하는 이메일입니다.');
+        } else if (serverMessage === 'PHONE_ALREADY_EXISTS') {
+          alert('이미 존재하는 휴대폰 번호입니다.');
+        } else {
+          alert('중복된 정보가 있습니다.');
+        }
       } else {
         alert('회원가입 실패!');
       }

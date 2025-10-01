@@ -17,13 +17,16 @@ const LoginForm = ({ onClose, onFormOpen }) => {
     e.preventDefault();
 
     // 💡 수정된 부분: text 대신 백엔드 DTO 필드명인 emailOrIdOrPhone을 사용합니다.
+    // AuthContext에서 넘겨준 userData 이다
     const loginData = {
       emailOrIdOrPhone: text, // 'text' 상태 변수의 값을 'emailOrIdOrPhone' 키에 담음
       password: password,
     };
 
-    const success = await login(loginData);
-    if (success) {
+    const userData = await login(loginData);
+
+    if (userData) {
+      alert(`로그인 성공! ID: ${userData.id}, 이름: ${userData.username}`);
       // 로그인 성공 시 모달 닫기
       setLoginError(false); // 오류 메시지 초기화
       onClose();
