@@ -1,11 +1,6 @@
 
 // 	HTTP 상태 코드	목적
-// 	409 Conflict	 회원가입 시 이메일이 중복될 때 사용
-
-
-
-
-
+// 	409 Conflict	 회원가입 시 이메일, 휴대폰 번호가 중복될 때 사용
 
 package springboot_first.pr.exception;
 

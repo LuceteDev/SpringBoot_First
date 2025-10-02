@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     () => !!sessionStorage.getItem('user')
   );
 
-  // 로그인 함수
+  // ✅로그인 함수
   const login = async (loginData) => {
     console.log('클라이언트에서 서버로 보낼 데이터:', loginData); // {emailOrIdOrPhone: 'j', password: 'j'}
     try {
@@ -38,14 +38,15 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   };
-  // 로그아웃
+
+  // ✅로그아웃
   const logout = () => {
     setUser(null);
     setIsLoggedIn(false);
     sessionStorage.removeItem('user');
   };
 
-  // 회원가입 : 프론트 에서 호출하고 여기로 와서 실행 -> 바로 스프링부트 컨트롤러 호출
+  // ✅회원가입 : 프론트 에서 호출하고 여기로 와서 실행 -> 바로 스프링부트 컨트롤러 호출
   const signUp = async (newUserData) => {
     console.log(newUserData);
     try {
@@ -74,8 +75,37 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ✅아이디 / 이메일 찾기
+  const findId = async (requestDTO) => {
+    console.log('사용자 입력 점검', requestDTO);
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/api/auth/find-id',
+        requestDTO
+      );
+      return response.data; // { user_id, email }
+    } catch (error) {
+      throw error.response?.data?.message || '아이디 찾기 실패';
+    }
+  };
+
+  // ✅비밀번호 재설정
+  const resetPassword = async (requestDTO) => {
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/api/auth/reset-pw',
+        requestDTO
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || '비밀번호 재설정 실패';
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, login, logout, signUp }}>
+    <AuthContext.Provider
+      value={{ user, isLoggedIn, login, logout, signUp, findId, resetPassword }}
+    >
       {children}
     </AuthContext.Provider>
   );

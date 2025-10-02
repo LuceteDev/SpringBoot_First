@@ -12,15 +12,19 @@
 }
 
 .section_center {
-  width: 50%;
-  height: auto;
+  /* ✅ 모바일/태블릿에서 너비 확보, 데스크톱에서는 최대 500px 제한 */
+  width: 90%;
+  max-width: 500px;
+  /* ✅ 뷰포트 높이 90%를 넘으면 스크롤 허용 */
+  max-height: 90vh;
+  overflow-y: auto;
   background-color: rgba(255, 255, 255, 0.5);
   padding: 40px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   padding-top: 30px;
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: bold;
   position: relative;
 }
@@ -133,4 +137,61 @@ h2 {
 .social-login .so-lo a,
 .contact-info a {
   color: white;
+}
+
+/* ============ 모달 폼 반응형 조정 ============ */
+
+/* 태블릿 이하 (max-width: 768px) */
+@media (max-width: 768px) {
+  /* 모달 컨테이너 (.section_center) 조정 */
+  .section_center {
+    /* 높이가 화면을 넘지 않도록 최대 높이 설정 (스크롤 유도) */
+    max-height: 90vh;
+    /* 내용이 넘칠 경우 세로 스크롤 허용 */
+    overflow-y: auto;
+    /* 태블릿에서 너비를 더 확보 (90%) */
+    width: 90%;
+    /* 전체적인 폰트 크기를 약간 줄여서 공간 확보 */
+    font-size: 1.3em;
+    /* 패딩(내부 여백)도 줄여서 공간 확보 */
+    padding: 20px;
+  }
+
+  /* 제목 (h2) 크기 조정 */
+  .section_center h2 {
+    font-size: 1.5em;
+  }
+
+  /* 입력 필드 레이블 및 입력란 크기 조정 */
+  .input-group label,
+  .input-group input {
+    font-size: 0.9em;
+  }
+
+  /* 버튼 크기 조정 */
+  .section_center button[type='submit'] {
+    padding: 12px;
+    font-size: 1em;
+  }
+}
+
+/* 모바일 이하 (max-width: 480px) */
+@media (max-width: 480px) {
+  /* 모바일에서는 너비를 최대한 넓게 사용 */
+  .section_center {
+    width: 95%;
+    /* 모바일에서 폰트 크기를 더 줄여서 내용이 잘리지 않도록 함 */
+    font-size: 1.1em;
+    padding: 15px;
+  }
+
+  /* 제목 크기 조정 */
+  .section_center h2 {
+    font-size: 1.3em;
+  }
+
+  /* 추가 링크(로그인으로 돌아가기 등) 폰트 조정 */
+  .additional-links a {
+    font-size: 1em;
+  }
 }

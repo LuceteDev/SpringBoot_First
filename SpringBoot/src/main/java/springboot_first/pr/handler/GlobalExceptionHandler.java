@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
-    // 💡 401 UNAUTHORIZED: 인증 실패 시
+    // 💡 401 UNAUTHORIZED: 인증 실패 (로그인, 아이디 찾기, 비밀번호 재설정 공통)
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
         // HttpStatus.UNAUTHORIZED (401) 반환

@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor; // 생성자 자동 생성을 위해 @Req
 
 import springboot_first.pr.dto.UserSignUpRequestDTO;
 import springboot_first.pr.dto.UserLoginRequestDTO;
+import springboot_first.pr.dto.FindIdRequestDTO;
+import springboot_first.pr.dto.ResetPwRequestDTO;
+
 import lombok.Getter;
 import lombok.Setter;
 import java.util.Optional;
@@ -67,14 +70,13 @@ public class AuthService {
 
     // 로그인
     public User login(UserLoginRequestDTO loginDTO) {
-        System.out.println("2. AuthController에서 받은 이메일: " + loginDTO.getEmailOrIdOrPhone());
         // DTO에서 필요한 값을 추출하여 사용
         String emailOrUserIdOrPhone = loginDTO.getEmailOrIdOrPhone(); 
         String rawPassword = loginDTO.getPassword();
         
         // 데이터 넘길때 마다 디버깅 함.. 로그인은 이메일만 비밀번호만 있음
-        System.out.println("2. Auth서비스 부분 : 받은 이메일: " + emailOrUserIdOrPhone);
-        System.out.println("2. Auth서비스 부분 : 받은 비밀번호: " + rawPassword);
+        System.out.println("C login : Auth서비스 부분 받은 이메일: " + emailOrUserIdOrPhone);
+        System.out.println("C login : Auth서비스 부분 받은 비밀번호: " + rawPassword);
         
         // 이메일, userId, 휴대폰 번호 3가지로 로그인 가능
         User user = userRepository.findByEmail(emailOrUserIdOrPhone)
@@ -88,4 +90,30 @@ public class AuthService {
         }
         return user;
     }
+
+    // ✅ 아이디/이메일 찾기
+    public User findId(FindIdRequestDTO requestDTO) {
+        System.out.println("C findId : AuthController에서 받은 이름: " + requestDTO.getUsername());
+        System.out.println("C findId : AuthController에서 받은 휴대폰 번호: " + requestDTO.getPhoneNumber());
+        return userRepository.findByUsernameAndPhoneNumber(
+                requestDTO.getUsername(),
+                requestDTO.getPhoneNumber()
+        ).orElseThrow(() -> new AuthenticationException("사용자를 찾을 수 없습니다."));
+    }
+
+
+    // ✅ 비밀번호 재설정
+    public boolean resetPassword(ResetPwRequestDTO requestDTO) {
+        System.out.println("C resetPassword : AuthController에서 받은 이메일: " + requestDTO.getEmail());
+        System.out.println("C resetPassword : AuthController에서 받은 새로운 비밀번호: " + requestDTO.getNewPassword());
+
+        User user = userRepository.findByEmail(requestDTO.getEmail())
+                .orElseThrow(() -> new AuthenticationException("등록되지 않은 이메일입니다."));
+        user.setPassword(passwordEncoder.encode(requestDTO.getNewPassword()));
+        userRepository.save(user);
+        return true;
+    }
+
+
+
 }

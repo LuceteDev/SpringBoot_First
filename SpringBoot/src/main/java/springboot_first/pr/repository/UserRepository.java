@@ -8,6 +8,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email); // 이메일로 조회 가능 SELECT * FROM users WHERE email=?
     Optional<User> findByUserId(String userId);
     Optional<User> findByPhoneNumber(String phoneNumber);
+    Optional<User> findByUsernameAndPhoneNumber(String username, String phoneNumber);
 
 }
 

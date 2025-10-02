@@ -1,39 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../css/login.css';
+import { useAuth } from '../contexts/AuthContext';
 
 const FindPwForm = ({ onClose, onFormOpen }) => {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const { resetPassword } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (newPassword !== confirmPassword) {
       alert('새 비밀번호가 일치하지 않습니다.');
       return;
     }
 
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/auth/reset-pw',
-        {
-          email,
-          new_password: newPassword,
-        }
-      );
-
-      if (response.status === 200) {
-        alert('비밀번호가 성공적으로 재설정되었습니다.');
-        onClose();
-      }
+      await resetPassword({ email, newPassword });
+      alert('비밀번호가 성공적으로 재설정되었습니다.');
+      onClose();
     } catch (error) {
-      if (error.response) {
-        alert(error.response.data.message);
-      } else {
-        alert('서버와 연결할 수 없습니다.');
-      }
+      alert(error);
     }
   };
 
