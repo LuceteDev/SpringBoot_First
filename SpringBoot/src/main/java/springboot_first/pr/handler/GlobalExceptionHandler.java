@@ -35,4 +35,21 @@ public class GlobalExceptionHandler {
         // 500 Internal Server Error로 처리
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류: " + e.getMessage());
     }
+
+
+    // @ExceptionHandler(PostValidationException.class)
+    // public ResponseEntity<String> handlePostValidation(PostValidationException ex) {
+    //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    // }
+
+    // @ExceptionHandler(UserNotFoundException.class)
+    // public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
+    //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    // }
+
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity<String> handleGeneral(Exception ex) {
+    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    //             .body("서버 내부 오류: " + ex.getMessage());
+    // }
 }

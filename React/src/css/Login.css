@@ -14,7 +14,7 @@
 .section_center {
   /* ✅ 모바일/태블릿에서 너비 확보, 데스크톱에서는 최대 500px 제한 */
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   /* ✅ 뷰포트 높이 90%를 넘으면 스크롤 허용 */
   max-height: 90vh;
   overflow-y: auto;
@@ -24,7 +24,7 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   padding-top: 30px;
-  font-size: 1.5em;
+  font-size: 2.5em;
   font-weight: bold;
   position: relative;
 }
@@ -137,6 +137,84 @@ h2 {
 .social-login .so-lo a,
 .contact-info a {
   color: white;
+}
+
+/* ============ 게시판 폼 전용 스타일 (BoardForm.jsx) ============ */
+
+/* 1. 폼 자체를 왼쪽 정렬로 변경 */
+.board-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* 절대 위치로 설정 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh; /* 화면 전체 높이로 설정 */
+  z-index: 100; /* ⭐ 다른 요소보다 높은 z-index 값을 줍니다. ⭐ */
+  backdrop-filter: blur(5px);
+}
+
+.board-form {
+  text-align: left; /* 폼 내부 요소들을 왼쪽으로 정렬 */
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.8); /* 배경색을 약간 밝게 */
+}
+
+/* 2. 제목 입력 필드 스타일 */
+.board-form .input-field {
+  /* input-group input 스타일을 재정의하여 padding을 주고 너비를 꽉 채웁니다. */
+  width: 100%;
+  height: 40px;
+  padding: 10px; /* 내부 여백 추가 */
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* 3. 내용 입력 영역 (textarea) 스타일 */
+.board-form .textarea-field {
+  width: 100%;
+  min-height: 150px; /* 최소 높이 지정 */
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  resize: vertical; /* 수직 방향으로만 크기 조절 허용 */
+  font-size: 1rem;
+}
+
+/* 4. 게시글 작성 버튼 스타일 */
+.board-form .submit-button {
+  width: 100%; /* 버튼도 꽉 채우기 */
+  padding: 12px;
+  border: none;
+  background-color: #f0ca50; /* 로그인 버튼과 동일하게 */
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+.submit-button:hover {
+  /* 색 부여 */
+  color: #f76d37;
+  /* 언더라인 표시 */
+  text-decoration: underline;
+}
+
+/* 5. 작성자 정보 스타일 */
+.board-form .author-info {
+  margin-bottom: 15px;
+  font-size: 1em;
+  font-weight: normal;
+  color: #333;
 }
 
 /* ============ 모달 폼 반응형 조정 ============ */

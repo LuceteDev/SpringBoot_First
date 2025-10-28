@@ -7,9 +7,11 @@ import FindPwForm from '../components/FindPwForm.jsx';
 import MyPageForm from '../components/MyPageForm.jsx';
 import '../css/Header.css';
 import { useAuth } from '../contexts/AuthContext';
+import BoardForm from '../components/BoardForm.jsx'; //게시판
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+
   const [modalForm, setModalForm] = useState(null);
 
   const { isLoggedIn, logout, user } = useAuth();
@@ -118,6 +120,9 @@ const Header = () => {
         {modalForm === 'findPw' && (
           <FindPwForm onClose={handleFormClose} onFormOpen={handleFormOpen} />
         )}
+        {modalForm === 'board' && (
+          <BoardForm onClose={handleFormClose} onFormOpen={handleFormOpen} />
+        )}
         <div className={`menu_area ${isOpen ? 'open' : ''}`}>
           <ul>
             <li>
@@ -133,7 +138,17 @@ const Header = () => {
               <Link to="/wines">Wines</Link>
             </li>
             <li>
-              <Link to="/board">Board</Link>
+              {/* <Link to="/board">Board</Link> */}
+              {/* 👈 Board 링크 대신 모달을 여는 onClick 이벤트로 변경 */}
+              <a
+                onClick={() => {
+                  handleFormOpen('board');
+                  toggleMenu(); // 햄버거 메뉴 닫기
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                Board
+              </a>
             </li>
           </ul>
         </div>
