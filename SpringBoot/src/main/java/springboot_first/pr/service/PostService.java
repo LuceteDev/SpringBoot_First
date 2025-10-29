@@ -1,3 +1,6 @@
+package springboot_first.pr.service;
+
+
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -14,6 +17,10 @@ import springboot_first.pr.dto.PostResponseDTO;
 import springboot_first.pr.model.Post;
 import springboot_first.pr.model.User;
 
+import java.util.stream.Collectors;
+
+import springboot_first.pr.exception.PostValidationException;
+import springboot_first.pr.exception.UserNotFoundException;
 
 @Service
 @RequiredArgsConstructor

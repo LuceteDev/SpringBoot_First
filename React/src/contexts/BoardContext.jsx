@@ -1,6 +1,8 @@
 // src/contexts/BoardContext.jsx
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import api from '../api/axiosConfig';
+
 import { useAuth } from './AuthContext'; // 로그인 상태 확인을 위해 AuthContext 사용
 
 const BoardContext = createContext();
@@ -13,20 +15,41 @@ export const BoardProvider = ({ children }) => {
   const [message, setMessage] = useState(null); // 성공 메시지
 
   // 게시글 목록 불러오기
+  // const fetchPosts = useCallback(async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     // const response = await axios.get('http://localhost:8080/api/posts');
+  //     const response = await axios.get('http://localhost:8080/api/posts', {
+  //       withCredentials: true, // ✅ 쿠키 전송
+  //     });
+  //     if (Array.isArray(response.data)) {
+  //       setPosts(response.data);
+  //     } else {
+  //       console.error('받아온 데이터가 배열이 아닙니다:', response.data);
+  //       setPosts([]);
+  //     }
+  //   } catch (err) {
+  //     console.error('게시글을 불러오는 데 실패했습니다.', err);
+  //     setError('게시글을 불러오는 중 오류가 발생했습니다.');
+  //     setPosts([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+  // 게시글 목록 불러오기
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:8080/api/posts');
+      const response = await api.get('/api/posts'); // ✅ 여기서 withCredentials 안써도 됨
       if (Array.isArray(response.data)) {
         setPosts(response.data);
       } else {
-        console.error('받아온 데이터가 배열이 아닙니다:', response.data);
         setPosts([]);
       }
     } catch (err) {
-      console.error('게시글을 불러오는 데 실패했습니다.', err);
-      setError('게시글을 불러오는 중 오류가 발생했습니다.');
+      setError('게시글 불러오기 실패');
       setPosts([]);
     } finally {
       setLoading(false);

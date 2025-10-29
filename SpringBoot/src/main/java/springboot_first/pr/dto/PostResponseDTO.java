@@ -1,6 +1,11 @@
+package springboot_first.pr.dto;
+
 import lombok.Getter;
 import lombok.Builder;
 import java.time.LocalDateTime;
+import springboot_first.pr.model.Post;
+
+
 
 @Getter @Builder
 public class PostResponseDTO {

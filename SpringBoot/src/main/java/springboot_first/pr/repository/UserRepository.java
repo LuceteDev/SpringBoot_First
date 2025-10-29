@@ -9,7 +9,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUserId(String userId);
     Optional<User> findByPhoneNumber(String phoneNumber);
     Optional<User> findByUsernameAndPhoneNumber(String username, String phoneNumber);
-
+    // username으로 User 조회
+    Optional<User> findByUsername(String username);
 }
 
 // JPA가 자동으로 SQL을 만들어 DB와 통신.

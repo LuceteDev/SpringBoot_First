@@ -9,6 +9,10 @@ import springboot_first.pr.exception.DuplicateResourceException;
 import springboot_first.pr.exception.DuplicateEmailException;
 import springboot_first.pr.exception.AuthenticationException;
 
+import springboot_first.pr.exception.PostValidationException;
+import springboot_first.pr.exception.UserNotFoundException;
+
+
 
 // 모든 @Controller나 @RestController에서 발생하는 예외를 전역적으로 잡아 처리하는 클래스
 // 흐름: @RestControllerAdvice 덕분에, 어떤 계층(Service, Controller)에서든 예외가 발생하면 GlobalExceptionHandler로 자동 이동하여 HTTP 응답 코드로 변환됩니다.
@@ -36,16 +40,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류: " + e.getMessage());
     }
 
-
-    // @ExceptionHandler(PostValidationException.class)
-    // public ResponseEntity<String> handlePostValidation(PostValidationException ex) {
-    //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    // }
-
-    // @ExceptionHandler(UserNotFoundException.class)
-    // public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
-    //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    // }
+    // 400 Bad Request: 게시글 유효성 오류
+    @ExceptionHandler(PostValidationException.class)
+    public ResponseEntity<String> handlePostValidation(PostValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    
+    // 404 Not Found: 유저 없음
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
     // @ExceptionHandler(Exception.class)
     // public ResponseEntity<String> handleGeneral(Exception ex) {

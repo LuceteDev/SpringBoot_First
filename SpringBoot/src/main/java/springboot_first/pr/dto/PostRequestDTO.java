@@ -1,3 +1,5 @@
+package springboot_first.pr.dto;
+
 import lombok.Getter;
 import lombok.Setter;
 
