@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/login.css';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../service/AuthService';
 
 const LoginForm = ({ onClose, onFormOpen }) => {
   const [text, settext] = useState('');

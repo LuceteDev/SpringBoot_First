@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../css/login.css';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../service/AuthService';
 
 const FindPwForm = ({ onClose, onFormOpen }) => {
   const [email, setEmail] = useState('');

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 
 // Context 생성
-const AuthContext = createContext();
+const AuthService = createContext();
 
 // Provider
 export const AuthProvider = ({ children }) => {
@@ -103,13 +103,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider
+    <AuthService.Provider
       value={{ user, isLoggedIn, login, logout, signUp, findId, resetPassword }}
     >
       {children}
-    </AuthContext.Provider>
+    </AuthService.Provider>
   );
 };
 
 // 커스텀 훅
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthService);

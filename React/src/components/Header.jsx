@@ -6,7 +6,7 @@ import FindIdForm from '../components/FindIdForm.jsx';
 import FindPwForm from '../components/FindPwForm.jsx';
 import MyPageForm from '../components/MyPageForm.jsx';
 import '../css/Header.css';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../service/AuthService.jsx';
 import BoardForm from '../components/BoardForm.jsx'; //게시판
 
 const Header = () => {

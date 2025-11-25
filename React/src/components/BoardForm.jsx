@@ -1,9 +1,9 @@
 // src/components/BoardForm.jsx (수정된 부분)
 import React, { useState, useEffect } from 'react';
 import '../css/login.css';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../service/AuthService';
 // ✅ useBoard 훅을 임포트합니다.
-import { useBoard } from '../contexts/BoardContext';
+import { useBoard } from '../service/BoardService';
 
 const BoardForm = ({ onClose, onFormOpen }) => {
   const { isLoggedIn, user } = useAuth(); // 로그인 상태와 사용자 정보

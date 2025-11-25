@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/login.css';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../service/AuthService';
 
 const SignUpForm = ({ onClose, onFormOpen }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [address, setAddress] = useState('');
+  // [제거] const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
   // 아직 프론트 영역, 여기에서 contexts/AuthContext 의 signup 호출
@@ -27,7 +27,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
       email,
       password,
       username,
-      address,
+      // [제거] address,
       phoneNumber,
     };
 
@@ -37,7 +37,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
       setPassword('');
       setConfirmPassword('');
       setUsername('');
-      setAddress('');
+      // [제거] setAddress('');
       setPhoneNumber('');
 
       // 회원가입 성공 시 자동으로 로그인 폼으로 이동
@@ -114,7 +114,8 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
               autoComplete="new-password"
             />
           </div>
-          <div className="input-group">
+          {/* [제거] 주소 입력 필드 */}
+          {/* <div className="input-group">
             <label htmlFor="address">주소</label>
             <input
               type="text"
@@ -123,7 +124,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
-          </div>
+          </div> */}
           <div className="input-group">
             <label htmlFor="phoneNumber">휴대폰 번호</label>
             <input

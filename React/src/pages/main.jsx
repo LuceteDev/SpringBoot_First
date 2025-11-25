@@ -6,8 +6,8 @@ import GlobalStyle from '../GlobalStyle';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import WinePage from './WinePage.jsx';
-import { AuthProvider } from '../contexts/AuthContext';
-import { BoardProvider } from '../contexts/BoardContext';
+import { AuthProvider } from '../service/AuthService.jsx';
+import { BoardProvider } from '../service/BoardService.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

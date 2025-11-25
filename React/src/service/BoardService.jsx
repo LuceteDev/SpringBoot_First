@@ -1,11 +1,11 @@
-// src/contexts/BoardContext.jsx
+// src/contexts/BoardService.jsx
 import React, { createContext, useContext, useState, useCallback } from 'react';
 // import axios from 'axios';
 import api from '../api/axiosConfig';
 
-import { useAuth } from './AuthContext'; // 로그인 상태 확인을 위해 AuthContext 사용
+import { useAuth } from './AuthService'; // 로그인 상태 확인을 위해 AuthContext 사용
 
-const BoardContext = createContext();
+const BoardService = createContext();
 
 export const BoardProvider = ({ children }) => {
   const { isLoggedIn } = useAuth(); // AuthContext에서 로그인 상태 가져오기
@@ -174,7 +174,7 @@ export const BoardProvider = ({ children }) => {
   );
 
   return (
-    <BoardContext.Provider
+    <BoardService.Provider
       value={{
         posts,
         loading,
@@ -189,8 +189,8 @@ export const BoardProvider = ({ children }) => {
       }}
     >
       {children}
-    </BoardContext.Provider>
+    </BoardService.Provider>
   );
 };
 
-export const useBoard = () => useContext(BoardContext);
+export const useBoard = () => useContext(BoardService);
