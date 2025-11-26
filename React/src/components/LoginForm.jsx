@@ -5,7 +5,7 @@ import '../css/login.css';
 import { useAuth } from '../service/AuthService';
 
 const LoginForm = ({ onClose, onFormOpen }) => {
-  const [text, settext] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   // 1. loginError 상태를 추가합니다. 초기값은 false
   const [loginError, setLoginError] = useState(false);
@@ -16,10 +16,8 @@ const LoginForm = ({ onClose, onFormOpen }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 💡 수정된 부분: text 대신 백엔드 DTO 필드명인 emailOrIdOrPhone을 사용합니다.
-    // AuthContext에서 넘겨준 userData 이다
     const loginData = {
-      emailOrIdOrPhone: text, // 'text' 상태 변수의 값을 'emailOrIdOrPhone' 키에 담음
+      emailOrIdOrPhone: identifier, // 'identifier' 상태 변수 사용
       password: password,
     };
 
@@ -41,8 +39,8 @@ const LoginForm = ({ onClose, onFormOpen }) => {
   };
 
   // 3. input 값이 변경될 때 loginError를 초기화하는 함수
-  const handletextChange = (e) => {
-    settext(e.target.value);
+  const handleIdentifierChange = (e) => {
+    setIdentifier(e.target.value);
     setLoginError(false);
   };
 
@@ -68,16 +66,16 @@ const LoginForm = ({ onClose, onFormOpen }) => {
             </div>
           )}
           <div className="input-group">
-            <label htmlFor="email">아이디 | 이메일 | 휴대폰 번호</label>
+            <label htmlFor="identifier">아이디 | 이메일 | 휴대폰 번호</label>
             <input
               type="text"
-              id="text"
-              name="text"
+              id="identifier"
+              name="identifier"
               required
               placeholder="아이디 | 이메일 | 휴대폰 번호 중 하나를 입력하세요"
-              value={text}
+              value={identifier}
               // 4. onChange 핸들러를 수정된 함수로 연결
-              onChange={handletextChange}
+              onChange={handleIdentifierChange}
             />
           </div>
           <div className="input-group">

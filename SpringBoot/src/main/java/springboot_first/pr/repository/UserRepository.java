@@ -3,13 +3,19 @@ package springboot_first.pr.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import springboot_first.pr.entity.User;
-import java.util.List;
 
-
+@Repository // ✅ 리포지터리 선언하기
 // 1️⃣ extends JpaRepository<Entity, 기본키 타입> 상속받기
 public interface UserRepository extends JpaRepository<User, Long>{
+
+  // ⚠️ 회원가입때 진행하는 쿼리들은 DB 부하를 줄이기 위해 boolean 을 사용할 것 ⚠️ //
+  boolean existsByUserId(String userId);
+  boolean existsByEmail(String email);
+  boolean existsByPhoneNumber(String phoneNumber);
+
 
   // 〰️〰️〰️ ⚠️ 로그인은 3가지 방식으로 할거니까  〰️〰️〰️ //
   // 3️⃣ @Query 어노테이션으로 직접 적은 쿼리 수행
@@ -28,4 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
   // 〰️〰️〰️ 💠 휴대폰 찾기 〰️〰️〰️ //
   Optional<User> findByPhoneNumber(String phoneNumber);
+
+  
+
 }
