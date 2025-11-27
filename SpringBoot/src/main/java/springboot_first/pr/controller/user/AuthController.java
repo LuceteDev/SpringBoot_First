@@ -3,6 +3,7 @@ package springboot_first.pr.controller.user;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
@@ -29,7 +30,7 @@ public class AuthController {
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
   // ✅ POST - 회원 가입 //
   @PostMapping("/register")
-  public ResponseEntity<UserRegisterResponse> register(@RequestBody UserRegisterRequest request) {
+  public ResponseEntity<UserRegisterResponse> register(@Valid @RequestBody UserRegisterRequest request) {
       log.info("POST /api/auth/register 호출됨"); // 💡 [로깅] 요청 진입 확인
 
       // ✅ [핵심] JSON -> DTO 변환 직후, DTO 객체의 내부 상태를 출력합니다.
@@ -42,13 +43,16 @@ public class AuthController {
       log.info("회원가입 응답 성공: Status 201 Created"); // 💡 [로깅] 응답 직전
       return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
       // Spring Boot (Jackson 라이브러리)가 ResponseEntity에 담긴 Response DTO 객체를 보고 응답 JSON 문자열로 자동으로 변환
+
+      // ⚠️ 테스트 코드에 201 Created 상태 코드로 응답
+      // return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
   }
   
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
   // ✅ POST - 로그인 //
   @PostMapping("/login")
-  public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
+  public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest request) {
       log.info("POST /api/auth/login 호출됨"); // 💡 [로깅] 요청 진입 확인
 
       // ✅ [핵심] JSON -> DTO 변환 직후, DTO 객체의 내부 상태를 출력합니다.
@@ -61,5 +65,8 @@ public class AuthController {
       log.info("로그인 응답 성공: Status 200 OK"); // 💡 [로깅] 응답 직전
       return ResponseEntity.status(HttpStatus.OK).body(responseDto);
       // Spring Boot (Jackson 라이브러리)가 ResponseEntity에 담긴 Response DTO 객체를 보고 응답 JSON 문자열로 자동으로 변환
+      // ⚠️ 테스트 코드에 201 Created 상태 코드로 응답
+      // return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }  
 }
+

@@ -2,7 +2,6 @@ package springboot_first.pr.service.auth;
 
 import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +55,11 @@ public class AuthService {
     //     log.warn("중복 전화번호 시도 감지: {}", requestDto.getPhoneNumber());
     //     throw new IllegalArgumentException("회원가입 실패: 이미 가입된 전화번호입니다.");
     // }
-                    // 〰️〰️〰️ ⚠️ 위처럼 작성 금지/DB부하 〰️〰️〰️ ⚠️ //
+
+                // 〰️〰️〰️ ⚠️ 비효율적인 이전 코드 (성능 저하) ⚠️ 〰️〰️〰️
+    // findBy...()는 존재 여부만 확인하려고 해도 해당 사용자의 모든 데이터(이름, 비밀번호 등)를 DB에서 가져와 메모리(Optional)에 로드
+    // 이는 존재 여부만 필요한 상황에서 불필요한 DB 부하를 유발
+    
 
     // 5️⃣ 유효성 검사 (중복 사용자 체크) - ✅ existsBy... 메서드를 사용하여 최적화 하기 (DB 부담을 최소화하며 존재 여부만 확인)
     if (userRepository.existsByUserId(requestDto.getUserId())) {
@@ -85,7 +88,9 @@ public class AuthService {
     
     return UserRegisterResponse.from(savedUser);
     // 8️⃣ 응답 DTO에 from 메서드 정의하러 가기 -> 코드 자동 생성 이용
-
+    
+    // ⚠️ 테스트 코드 실습용 return
+    // return null;
   } 
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 로그인 로직 시작 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //

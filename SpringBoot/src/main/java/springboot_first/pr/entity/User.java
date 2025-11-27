@@ -28,6 +28,10 @@ import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
 @Table(name = "users") // 👈 (중요) 실제 DB 테이블 이름인 "users"를 지정했습니다.
 
 public class User {
+
+// ⚠️ Entity (`User`)의 역할 (최종 방어선 역할)
+// ⚠️ DTO 검증을 통과한 데이터가 DB에 저장될 때, DB가 "이 필드는 무조건 값이 있어야 하고, 중복되면 안 된다"는 것을 강제
+
     // 2️⃣ 필드 선언
     // 3️⃣ id필드에 @Id 붙여서 대표키 선언하기
     @Id
@@ -41,6 +45,7 @@ public class User {
     private String userId;
 
     @Column(nullable = false, unique = true)
+    
     private String email;
 
     @NotBlank

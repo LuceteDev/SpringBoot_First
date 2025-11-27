@@ -21,8 +21,10 @@ import springboot_first.pr.entity.User;
 public class UserLoginResponse {
     // ✅ 로그인 응답 ⚠️ 비밀번호 제외, 조회한 id 포함
 
-    // ✅ [필수] 인증 토큰
-    private String token; // 인증 토큰 (JWT). 이후 모든 요청의 신분증 역할.
+    // ✅ [필수] 인증 토큰 - ⚠️ 반환 금지 ❌
+    private String accessToken;
+    
+    private String refreshToken; 
 
     // ✅ [실용] 사용자 식별 정보
     private Long id; // 자동증가 기본키. 클라이언트 상태 관리 및 조회에 유용.
@@ -36,7 +38,7 @@ public class UserLoginResponse {
         log.debug("UserLoginResponse from() 메서드 호출, Entity와 Token -> DTO 변환 시작");
         
         return UserLoginResponse.builder()
-                .token(generatedToken) // 핵심: 발급된 토큰 주입
+                // .token(generatedToken) // 핵심: 발급된 토큰 주입
                 .id(user.getId())
                 .userId(user.getUserId())
                 .username(user.getUsername()) // 사용자 이름 포함

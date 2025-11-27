@@ -90,6 +90,45 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		    <!-- 💡 H2 Database (In-Memory DB for Testing) -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+		    <!-- ======================================================= -->
+    <!-- 💡 [필수] JWT (JSON Web Token) 라이브러리 추가 -->
+    <!-- ======================================================= -->
+    <!-- jjwt-api: 토큰 생성 및 파싱을 위한 API 인터페이스 -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version> <!-- 최신 버전으로 업데이트 가능 -->
+    </dependency>
+    <!-- jjwt-impl: API 구현체 -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version> 
+        <scope>runtime</scope>
+    </dependency>
+    <!-- jjwt-jackson: JSON 직렬화/역직렬화 (필수) -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+    
+    <!-- Spring Security (향후 JWT 필터 구현 시 필요) -->
+    <!-- 지금 당장 사용하지 않아도 나중에 필요하므로 미리 추가할 수 있습니다. -->
+    <!-- <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency> -->
+
+
 	</dependencies>
 
 	<build>

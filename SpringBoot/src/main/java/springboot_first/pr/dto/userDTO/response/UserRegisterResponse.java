@@ -20,11 +20,11 @@ import springboot_first.pr.entity.User;
 public class UserRegisterResponse { 
   // ✅ 회원가입 응답 ⚠️ 비밀번호 제외, 조회한 id 포함
 
-    private Long id; // 자동증가하는 기본키
-    private String userId; // 아이디
-    private String email; // 이메일
-    private String username; // 본명
-    private String phoneNumber; // 휴대폰 번호
+    private Long id; // 자동증가 기본키. 클라이언트 상태 관리 및 조회에 유용.
+    private String userId; // 아이디 (외부에 노출되는 식별자)
+    private String username; // ⚠️ 사용자 이름 (로그인 직후 환영 메시지 등에 사용)
+    // private String email; // 이메일 -> 고려해봐야함
+
 
 
     // 서비스에서 return UserRegisterResponse.from(savedUser); 호출 했기 때문에 메서드 정의해주기
@@ -35,9 +35,7 @@ public class UserRegisterResponse {
       return UserRegisterResponse.builder()
       .id(savedUser.getId())
       .userId(savedUser.getUserId())
-      .email(savedUser.getEmail())
       .username(savedUser.getUsername())
-      .phoneNumber(savedUser.getPhoneNumber())
       .build();
     }
 }

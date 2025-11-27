@@ -12,4 +12,10 @@ public interface TokenProvider {
      */
     String createToken(User user);
     
+    /**
+     * 주어진 JWT 토큰의 유효성을 검증하고, 토큰 내부에서 userId를 추출합니다.
+     * @param token JWT 문자열
+     * @return 토큰에서 추출된 사용자 ID (String)
+     */
+    String getUserIdFromToken(String token);
 }
