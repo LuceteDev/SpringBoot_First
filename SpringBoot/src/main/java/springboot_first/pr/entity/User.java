@@ -48,6 +48,7 @@ public class User {
     
     private String email;
 
+    // [유지] 사용자 이름 (본명)
     @NotBlank
     @Column(nullable = false)
     private String username;
@@ -64,25 +65,43 @@ public class User {
     // 〰️〰️〰️〰️〰️〰️〰️〰️ 6️⃣ UserRegisterRequest DTO 생성 하러 이동 〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 
+    //    Entity.from()은 외부 데이터(DTO)를 DB에 저장할 Entity 객체로 변환할 때 사용됨 ‼️
+
+
     // 〰️〰️〰️ 6️⃣ 서비스 -> 엔티티로 요청하는 작업 (미리 작성 or 서비스 from 메서드 정의 후 작성하기) 〰️〰️〰️ //
     // 〰️〰️〰️〰️〰️〰️〰️〰️ 6️⃣ User 엔티티 생성 및 반환하는 정적 팩토리 메서드 추가하기 〰️〰️〰️〰️〰️〰️〰️〰️ //
-    public static User from(UserRegisterRequest dto, String encodedPassword){ // 6️⃣-1️⃣ String encodedPassword는 서비스(Service) 계층에서 비밀번호를 암호화한 후, 그 결과 값(암호화된 문자열)을 엔티티의 정적 팩토리 메서드(from)로 전달했다는 것을 의미
-        // ⚠️ 메서드명 from은 (가장 흔하게 사용되며, "DTO로부터 엔티티를 만든다"는 의미를 명확히 함) 라고 한다
-        // ✅ 최종적으로 User (엔티티) 객체를 만들어서 반환하기 때문. (DTO → Entity 변환)
+    // public static User from(UserRegisterRequest dto, String encodedPassword){ // 6️⃣-1️⃣ String encodedPassword는 서비스(Service) 계층에서 비밀번호를 암호화한 후, 그 결과 값(암호화된 문자열)을 엔티티의 정적 팩토리 메서드(from)로 전달했다는 것을 의미
+    //     // ⚠️ 메서드명 from은 (가장 흔하게 사용되며, "DTO로부터 엔티티를 만든다"는 의미를 명확히 함) 라고 한다
+    //     // ✅ 최종적으로 User (엔티티) 객체를 만들어서 반환하기 때문. (DTO → Entity 변환)
         
-        log.info("User Entity from() 메서드 호출"); // 💡 [로깅] Entity 생성 시작 👇아래 같은 형태
-        // UserRegisterRequest DTO 내부 상태: UserRegisterRequest(userId=jk, email=jk@jk.com, username=jk, password=jk, phoneNumber=010-1231-1231)
+    //     log.info("User Entity from() 메서드 호출"); // 💡 [로깅] Entity 생성 시작 👇아래 같은 형태
+    //     // UserRegisterRequest DTO 내부 상태: UserRegisterRequest(userId=jk, email=jk@jk.com, username=jk, password=jk, phoneNumber=010-1231-1231)
 
-        return User.builder() // ⚠️ Service 계층의 핵심 로직을 담당하는 곳에서 가독성과 안전성을 높이기 위해
-        .userId(dto.getUserId())
+    //     return User.builder() // ⚠️ Service 계층의 핵심 로직을 담당하는 곳에서 가독성과 안전성을 높이기 위해
+    //     .userId(dto.getUserId())
+    //     .email(dto.getEmail())
+    //     .username(dto.getUsername())
+    //     .password(encodedPassword) // 반드시 암호화된 비밀번호 사용
+    //     .phoneNumber(dto.getPhoneNumber())
+    //     .build();
+    // } 
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️ ⚠️ 위 반환은 아이디 필드를 입력 받는 경우 〰️〰️〰️〰️〰️〰️〰️〰️ //
+    
+    // 〰️〰️〰️ DTO -> Entity 변환 팩토리 메서드 수정 〰️〰️〰️ 
+    public static User from(UserRegisterRequest dto, String encodedPassword){ 
+        
+        // 💡 [핵심 로직] 이메일에서 @ 앞부분을 추출하여 userId로 설정
+        String userIdFromEmail = dto.getEmail().split("@")[0];
+
+        log.info("User Entity from() 메서드 호출, userId를 이메일 접두사({})로 설정", userIdFromEmail); 
+
+        return User.builder() 
+        .userId(userIdFromEmail) // 💡 [변경] DTO의 userId 대신 이메일 접두사 사용
         .email(dto.getEmail())
         .username(dto.getUsername())
-        .password(encodedPassword) // 반드시 암호화된 비밀번호 사용
+        .password(encodedPassword) 
         .phoneNumber(dto.getPhoneNumber())
         .build();
-    } 
-
-
-    // 〰️〰️〰️〰️〰️〰️〰️〰️ 7️⃣ 수정 메서드 정의해야함 〰️〰️〰️〰️〰️〰️〰️〰️ //
-    
+    }
 }

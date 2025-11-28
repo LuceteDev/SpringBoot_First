@@ -23,7 +23,7 @@ public class UserRegisterResponse {
     private Long id; // 자동증가 기본키. 클라이언트 상태 관리 및 조회에 유용.
     private String userId; // 아이디 (외부에 노출되는 식별자)
     private String username; // ⚠️ 사용자 이름 (로그인 직후 환영 메시지 등에 사용)
-    // private String email; // 이메일 -> 고려해봐야함
+    private String email; // 이메일 -> 고려해봐야함
 
 
 
@@ -36,6 +36,7 @@ public class UserRegisterResponse {
       .id(savedUser.getId())
       .userId(savedUser.getUserId())
       .username(savedUser.getUsername())
+      .email(savedUser.getEmail())
       .build();
     }
 }

@@ -34,11 +34,12 @@ public class UserLoginResponse {
     // ⚠️ 보안 및 실용성 때문에 email, phoneNumber는 생략합니다.
 
     // 💡 [현업 패턴] Service 계층에서 Entity와 토큰을 받아 응답 DTO로 변환하는 정적 팩토리 메서드
-    public static UserLoginResponse from(User user, String generatedToken) { // ✅ 토큰 인자 추가 및 반환 타입 수정
+    public static UserLoginResponse from(User user, String accessToken, String refreshToken) { // ✅ 토큰 인자 추가 및 반환 타입 수정
         log.debug("UserLoginResponse from() 메서드 호출, Entity와 Token -> DTO 변환 시작");
         
         return UserLoginResponse.builder()
-                // .token(generatedToken) // 핵심: 발급된 토큰 주입
+                 .accessToken(accessToken) // ✅ 핵심: accessToken 주입
+                .refreshToken(refreshToken) // ✅ 핵심: refreshToken 주입
                 .id(user.getId())
                 .userId(user.getUserId())
                 .username(user.getUsername()) // 사용자 이름 포함

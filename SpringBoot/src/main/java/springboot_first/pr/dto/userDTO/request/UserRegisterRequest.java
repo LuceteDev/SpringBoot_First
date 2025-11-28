@@ -52,14 +52,20 @@ public class UserRegisterRequest {
     // ✅ 회원가입 시 요청받는 필드 (Bean Validation 추가)
 
     // [1] 사용자 ID (로그인 아이디)
-    @NotBlank(message = "사용자 ID는 필수 입력 값입니다.") // null, "", " "을 허용하지 않음
-    @Size(min = 4, max = 20, message = "사용자 ID는 4자 이상 20자 이하로 입력해야 합니다.")
-    private String userId; // 아이디
+    // @NotBlank(message = "사용자 ID는 필수 입력 값입니다.") // null, "", " "을 허용하지 않음
+    // @Size(min = 4, max = 20, message = "사용자 ID는 4자 이상 20자 이하로 입력해야 합니다.")
+    // private String userId; // 아이디
 
     // [2] 이메일
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.") // @와 .을 포함하는 유효한 이메일 형식인지 검사
     @Size(max = 100, message = "이메일은 100자를 초과할 수 없습니다.")
+    // 💡 [핵심 변경] 구글식 도메인 및 로컬파트 패턴 강제 (a-z, 0-9, 점(.)만 허용)
+    // ^[a-zA-Z0-9.]+@email\\.com$
+    // - @ 앞부분은 영문, 숫자, 점(.)만 허용
+    // - 반드시 @email.com으로 끝나야 함
+    @Pattern(regexp = "^[a-zA-Z0-9.]+@email\\.com$",
+             message = "이메일은 영문, 숫자, 마침표(.)로 구성되어야 하며 도메인은 '@email.com'이어야 합니다.")
     private String email; // 이메일
 
     // [3] 본명 (사용자 이름)

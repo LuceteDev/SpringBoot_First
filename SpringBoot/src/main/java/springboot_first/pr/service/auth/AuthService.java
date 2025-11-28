@@ -39,7 +39,7 @@ public class AuthService {
   // 4️⃣ 트랜잭션 선언 후 메서드 정의하기
   @Transactional
   public UserRegisterResponse register(UserRegisterRequest requestDto){
-  log.info("회원가입 요청 시작: userId={}", requestDto.getUserId()); // 💡 [로깅] 요청 시작
+  log.info("회원가입 요청 시작: userEmail={}", requestDto.getEmail()); // 💡 [로깅] 요청 시작
 
     // 5️⃣ 유효성 검사 (중복 사용자 체크)
     // 아이디, 이메일, 전화번호 중복을 모두 체크 
@@ -62,11 +62,11 @@ public class AuthService {
     
 
     // 5️⃣ 유효성 검사 (중복 사용자 체크) - ✅ existsBy... 메서드를 사용하여 최적화 하기 (DB 부담을 최소화하며 존재 여부만 확인)
-    if (userRepository.existsByUserId(requestDto.getUserId())) {
-        log.warn("중복 사용자 ID 시도 감지: {}", requestDto.getUserId()); // 💡 [로깅] 경고
-        // Spring Boot에서 RuntimeException은 ControllerAdvice로 처리하는 것이 일반적입니다.
-        throw new RuntimeException("회원가입 실패: 이미 존재하는 사용자 ID입니다."); 
-    }
+    // if (userRepository.existsByUserId(requestDto.getUserId())) {
+    //     log.warn("중복 사용자 ID 시도 감지: {}", requestDto.getUserId()); // 💡 [로깅] 경고
+    //     // Spring Boot에서 RuntimeException은 ControllerAdvice로 처리하는 것이 일반적입니다.
+    //     throw new RuntimeException("회원가입 실패: 이미 존재하는 사용자 ID입니다."); 
+    // }
     if (userRepository.existsByEmail(requestDto.getEmail())) {
         log.warn("중복 이메일 시도 감지: {}", requestDto.getEmail());
         throw new RuntimeException("회원가입 실패: 이미 가입된 이메일입니다.");
@@ -152,10 +152,13 @@ public class AuthService {
         
         // 1️⃣ 통합 식별자를 사용하여 사용자 조회 (ID, Email, Phone 순으로 Optional.or 체이닝)
         // 이 방식은 클라이언트가 보낸 단 하나의 'identifier' 값으로 세 가지 필드를 모두 검색
-        Optional<User> optionalUser = userRepository.findByUserId(identifier)
-                .or(() -> userRepository.findByEmail(identifier))
-                .or(() -> userRepository.findByPhoneNumber(identifier));
-
+        // Optional<User> optionalUser = userRepository.findByUserId(identifier)
+        //         .or(() -> userRepository.findByEmail(identifier))
+        //         .or(() -> userRepository.findByPhoneNumber(identifier));
+         // 💡 [변경] findByUserId는 제거되었으므로, 이메일을 1순위, 전화번호를 2순위로 조회합니다.
+        Optional<User> optionalUser = userRepository.findByEmail(identifier)
+        .or(() -> userRepository.findByPhoneNumber(identifier));
+        
         // 사용자가 없을 경우 예외 발생
         User user = optionalUser
              .orElseThrow(() -> {
