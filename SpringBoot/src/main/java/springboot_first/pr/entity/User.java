@@ -40,7 +40,7 @@ public class User {
     private Long id; // 대표키
 
     // 5️⃣ 해당 필드를 테이블의 속성으로 매핑
-    // 실제 로그인 ID + 닉네임 용도
+    // 실제 로그인 ID
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId;
 

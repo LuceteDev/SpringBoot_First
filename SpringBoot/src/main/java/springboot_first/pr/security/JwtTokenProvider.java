@@ -15,41 +15,62 @@ import java.util.Date;
 @Service 
 public class JwtTokenProvider implements TokenProvider {
 
-    // application.properties에서 주입받을 JWT 비밀 키
     private final Key key;
-    // application.properties에서 주입받을 토큰 만료 시간 (밀리초)
-    private final long tokenExpirationTime;
+    // 💡 [수정] Access Token과 Refresh Token의 만료 시간을 분리
+    private final long accessExpirationTime;
+    private final long refreshExpirationTime;
 
-    // 생성자를 통해 설정 파일의 값을 주입받고, 비밀 키를 초기화합니다.
+
+    // 생성자를 통해 설정 파일의 값을 주입받고, 비밀 키와 만료 시간을 초기화합니다.
+    // 💡 [수정] 두 개의 만료 시간을 주입받습니다.
     public JwtTokenProvider(@Value("${jwt.secret-key}") String secretKey,
-                            @Value("${jwt.expiration-time}") long tokenExpirationTime) {
+                            @Value("${jwt.access-expiration-time}") long accessExpirationTime,
+                            @Value("${jwt.refresh-expiration-time}") long refreshExpirationTime) {
         // Base64 인코딩된 비밀 키 문자열을 바이트 배열로 디코딩하여 Key 객체로 만듭니다.
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        this.tokenExpirationTime = tokenExpirationTime;
-        log.info("JWT TokenProvider 초기화 완료. 만료 시간: {}ms", tokenExpirationTime);
+        this.accessExpirationTime = accessExpirationTime;
+        this.refreshExpirationTime = refreshExpirationTime;
+        log.info("JWT TokenProvider 초기화 완료. Access 만료 시간: {}ms, Refresh 만료 시간: {}ms", accessExpirationTime, refreshExpirationTime);
     }
 
     /**
-     * 사용자 정보를 기반으로 Access Token을 생성합니다.
+     * 기본 JWT 생성 로직 (재활용을 위해 분리)
      */
-    @Override
-    public String createToken(User user) {
+    private String generateToken(User user, long expirationTime) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + tokenExpirationTime);
+        Date expiryDate = new Date(now.getTime() + expirationTime);
 
-        // JWT 생성 로직
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(user.getUserId()) // 토큰의 제목(Subject)으로 userId를 사용
                 .setIssuedAt(now) // 토큰 발급 시간
                 .setExpiration(expiryDate) // 토큰 만료 시간
+                // 💡 [개선] 토큰 타입(액세스/리프레시) 구분을 위한 클레임 추가
+                .claim("type", expirationTime == accessExpirationTime ? "access" : "refresh") 
                 .signWith(key, SignatureAlgorithm.HS256) // HS256 알고리즘과 비밀 키로 서명
                 .compact();
-        
-        log.info("JWT Access Token 생성 완료: UserId: {}, 만료 시간: {}", user.getUserId(), expiryDate);
-        
-        return token;
     }
 
+
+    /**
+     * 사용자 정보를 기반으로 Access Token을 생성합니다. (TokenProvider 인터페이스 구현)
+     */
+    @Override
+    public String createAccessToken(User user) {
+        String token = generateToken(user, accessExpirationTime);
+        log.info("JWT Access Token 생성 완료: UserId: {}", user.getUserId());
+        return token;
+    }
+    
+    /**
+     * 사용자 정보를 기반으로 Refresh Token을 생성합니다. (TokenProvider 인터페이스 구현)
+     */
+    @Override
+    public String createRefreshToken(User user) {
+        String token = generateToken(user, refreshExpirationTime);
+        log.info("JWT Refresh Token 생성 완료: UserId: {}", user.getUserId());
+        return token;
+    }
+    
     /**
      * 토큰에서 userId를 추출하고 토큰의 유효성을 검증합니다.
      */

@@ -95,7 +95,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
 		    <!-- ======================================================= -->
     <!-- 💡 [필수] JWT (JSON Web Token) 라이브러리 추가 -->

@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
   // 〰️〰️〰️ 💠 아이디 찾기 〰️〰️〰️ //
   // List<User> findByUserId(String userId); 
   // findBy...와 같은 메서드 명명 규칙(Query Method)을 통해 쿼리를 자동 생성할 수 있지만 반환형은 Optional<>로 하는 것이 좋다고 함
-  // Optional<User> findByUserId(String userId); ❌ 이제 사용 안함
+  Optional<User> findByUserId(String userId);
 
 
   // 〰️〰️〰️ 💠 이메일 찾기 〰️〰️〰️ //

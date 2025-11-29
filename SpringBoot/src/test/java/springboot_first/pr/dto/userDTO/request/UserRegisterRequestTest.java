@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("UserRegisterRequest DTO 유효성 검사 최종 테스트")

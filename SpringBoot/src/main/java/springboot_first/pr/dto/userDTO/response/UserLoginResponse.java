@@ -38,7 +38,7 @@ public class UserLoginResponse {
         log.debug("UserLoginResponse from() 메서드 호출, Entity와 Token -> DTO 변환 시작");
         
         return UserLoginResponse.builder()
-                 .accessToken(accessToken) // ✅ 핵심: accessToken 주입
+                .accessToken(accessToken) // ✅ 핵심: accessToken 주입
                 .refreshToken(refreshToken) // ✅ 핵심: refreshToken 주입
                 .id(user.getId())
                 .userId(user.getUserId())

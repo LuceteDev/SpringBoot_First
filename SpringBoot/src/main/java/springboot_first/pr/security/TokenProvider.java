@@ -6,11 +6,18 @@ import springboot_first.pr.entity.User;
 public interface TokenProvider {
     
     /**
-     * 사용자 정보를 기반으로 인증 토큰을 생성합니다.
+     * 사용자 정보를 기반으로 Access Token을 생성합니다.
      * @param user 인증된 사용자 Entity
-     * @return 생성된 JWT 문자열
+     * @return 생성된 Access JWT 문자열
      */
-    String createToken(User user);
+    String createAccessToken(User user);
+    
+    /**
+     * 사용자 정보를 기반으로 Refresh Token을 생성합니다.
+     * @param user 인증된 사용자 Entity
+     * @return 생성된 Refresh JWT 문자열
+     */
+    String createRefreshToken(User user);
     
     /**
      * 주어진 JWT 토큰의 유효성을 검증하고, 토큰 내부에서 userId를 추출합니다.
