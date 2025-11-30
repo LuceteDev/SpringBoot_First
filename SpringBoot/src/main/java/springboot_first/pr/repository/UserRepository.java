@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
   Optional<User> findByEmail(String email);
   
 
-  // 〰️〰️〰️ 💠 휴대폰 찾기 〰️〰️〰️ //
+  // 〰️〰️〰️ 💠 휴대폰 찾기 : 계정(이메일) 찾기에 사용✅ 〰️〰️〰️ //
   Optional<User> findByPhoneNumber(String phoneNumber);
 
   

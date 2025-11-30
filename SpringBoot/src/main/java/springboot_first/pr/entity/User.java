@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,9 +60,17 @@ public class User {
     private String password;
     //⚠️ JSON 응답에 포함 안 되게 하는 것! 또는 DTO(UserResponseDTO)를 만들어서 password 필드 자체를 빼버리기.
 
+    // @NotBlank(message = "휴대폰 번호는 필수 입력 값입니다.")
+    // 대한민국 일반 휴대폰 번호 형식 (010-XXXX-XXXX)만 허용
+    // @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "유효한 휴대폰 번호 형식(010-xxxx-xxxx)이 아닙니다.")
+
+    // ⚠️ 입력값 형식을 엔티티에 강제하면 유연성이 떨어지고, 이러한 패턴, 검증 옵션은 DTO에서 처리해야함 ‼️
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
+        
+    
+    
     // 〰️〰️〰️〰️〰️〰️〰️〰️ 6️⃣ UserRegisterRequest DTO 생성 하러 이동 〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 

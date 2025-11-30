@@ -142,56 +142,8 @@ public class AuthService {
     //     return Optional.empty();
     // }
 
-    // @Transactional(readOnly = true) 
-    // public UserLoginResponse login(UserLoginRequest requestDto) {
-    //     log.info("AuthService.login() 호출: 로그인 시도");
 
-    //     // DTO에서 통합 식별자와 비밀번호 추출
-    //     String identifier = requestDto.getEmailOrIdOrPhone(); 
-    //     String rawPassword = requestDto.getPassword();
-        
-    //     // 1️⃣ 통합 식별자를 사용하여 사용자 조회 (ID, Email, Phone 순으로 Optional.or 체이닝)
-    //     // 이 방식은 클라이언트가 보낸 단 하나의 'identifier' 값으로 세 가지 필드를 모두 검색
-    //     // Optional<User> optionalUser = userRepository.findByUserId(identifier)
-    //     //         .or(() -> userRepository.findByEmail(identifier))
-    //     //         .or(() -> userRepository.findByPhoneNumber(identifier));
-    //      // 💡 [변경] findByUserId는 제거되었으므로, 이메일을 1순위, 전화번호를 2순위로 조회합니다.
-    //     Optional<User> optionalUser = userRepository.findByEmail(identifier)
-    //     .or(() -> userRepository.findByPhoneNumber(identifier));
-        
-    //     // 사용자가 없을 경우 예외 발생
-    //     User user = optionalUser
-    //          .orElseThrow(() -> {
-    //              log.warn("로그인 시도 실패: 식별자 {}로 사용자를 찾을 수 없습니다.", identifier);
-    //              return new AuthenticationException("사용자를 찾을 수 없습니다."); 
-    //          });
-    //     log.debug("식별자 조회 성공. UserId: {}", user.getUserId());
-
-    //     // 2️⃣ 비밀번호 검증 (BCryptPasswordEncoder 사용)
-    //     if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-    //         log.warn("로그인 시도 실패: UserId {} 의 비밀번호가 일치하지 않습니다.", user.getUserId());
-    //         throw new AuthenticationException("비밀번호가 일치하지 않습니다."); 
-    //     }
-    //     log.debug("비밀번호 검증 성공.");
-
-    //     // 3️⃣ 토큰 발급
-    //     // String token = tokenProvider.createToken(user);
-    //     // log.info("로그인 성공 및 토큰 발급 완료. UserId: {}", user.getUserId());
-
-    //     // // 4️⃣ Response DTO 변환 및 반환
-    //     // return UserLoginResponse.from(user, token);
-    //     // 3️⃣ [수정됨] Access Token 및 Refresh Token 발급
-    //     // TokenProvider의 createToken() 대신 createAccessToken()과 createRefreshToken()을 호출
-    //     String accessToken = tokenProvider.createAccessToken(user);
-    //     String refreshToken = tokenProvider.createRefreshToken(user);
-        
-    //     log.info("로그인 성공 및 토큰 발급 완료. UserId: {}", user.getUserId());
-
-    //     // 4️⃣ [수정됨] Response DTO 변환 및 반환 (토큰 2개 전달)
-    //     // UserLoginResponse.from() 메서드 시그니처 변경에 맞춰 2개의 토큰을 전달
-    //     return UserLoginResponse.from(user, accessToken, refreshToken);
-    // }
-        @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public UserLoginResponse login(UserLoginRequest requestDto) {
         log.info("AuthService.login() 호출: 로그인 시도");
 
