@@ -23,8 +23,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
 import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
+import springboot_first.pr.dto.userDTO.request.UserIdFindRequest; // 💡 ID 찾기 요청 DTO 임포트
 import springboot_first.pr.dto.userDTO.response.UserLoginResponse;
 import springboot_first.pr.dto.userDTO.response.UserRegisterResponse;
+import springboot_first.pr.dto.userDTO.response.UserIdFindResponse; // 💡 ID 찾기 응답 DTO 임포트
 // 커스텀 예외 클래스 임포트
 import springboot_first.pr.exception.AuthenticationException; 
 import springboot_first.pr.exception.DuplicateUserException;
@@ -60,26 +62,29 @@ class AuthControllerTest {
     private final String TEST_USER_ID = "testuser"; 
     private final String TEST_EMAIL = "test@email.com";
     private final String TEST_PASSWORD = "password123";
+    private final String TEST_USERNAME = "Tester"; // 💡 추가
+    private final String TEST_PHONE_NUMBER = "010-1234-5678"; // 💡 추가
+    private final String MASKED_USER_ID = "t**********"; // 💡 추가 (ID 찾기용)
 
     // 테스트용 DTO
     private UserRegisterRequest validRegisterRequest;
     private UserRegisterResponse successRegisterResponse;
     private UserLoginRequest validLoginRequest;
     private UserLoginResponse successLoginResponse;
-
+    private UserIdFindRequest validFindIdRequest; // 💡 ID 찾기 요청 DTO
 
     @BeforeEach
     void setUp() {
         // [회원가입] 유효한 요청 DTO
         validRegisterRequest = UserRegisterRequest.builder()
             .email(TEST_EMAIL)
-            .username("Tester")
+            .username(TEST_USERNAME) // 상수로 변경
             .password(TEST_PASSWORD)
-            .phoneNumber("010-1234-5678")
+            .phoneNumber(TEST_PHONE_NUMBER) // 상수로 변경
             .build();
 
         // [회원가입] 성공 응답 DTO (Service에서 생성되어 반환되는 값)
-        successRegisterResponse = new UserRegisterResponse(1L, TEST_USER_ID, "Tester", TEST_EMAIL); 
+        successRegisterResponse = new UserRegisterResponse(1L, TEST_USER_ID, TEST_USERNAME, TEST_EMAIL); 
         
         // [로그인] 유효한 요청 DTO
         validLoginRequest = new UserLoginRequest(TEST_EMAIL, TEST_PASSWORD);
@@ -88,14 +93,17 @@ class AuthControllerTest {
         successLoginResponse = UserLoginResponse.builder()
             .id(1L)
             .userId(TEST_USER_ID)
-            .username("Tester")
+            .username(TEST_USERNAME)
             .accessToken("mock-access-token-1234")
             .refreshToken("mock-refresh-token-5678")
             .build();
+
+        // 💡 [ID 찾기] 유효한 요청 DTO 초기화
+        validFindIdRequest = new UserIdFindRequest(TEST_PHONE_NUMBER, TEST_USERNAME);
     }
     
     // =================================================================================
-    // 💡 헬퍼 메서드: POST 요청 시뮬레이션
+    // 💡 헬퍼 메서드: POST 요청 시뮬레이션 (기존 구조 유지)
     // =================================================================================
 
     private ResultActions performRegisterPost(Object requestDto) throws Exception {
@@ -109,6 +117,14 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDto)));
     }
+
+    // 💡 ID 찾기 헬퍼 메서드 추가
+    private ResultActions performFindIdPost(Object requestDto) throws Exception {
+        return mockMvc.perform(post("/api/auth/find-id") // 💡 ID 찾기 엔드포인트
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)));
+    }
+
 
     // =================================================================================
     // 1. 회원가입 시나리오 (POST /api/auth/register)
@@ -135,7 +151,13 @@ class AuthControllerTest {
     void register_fail_validation_blank_email() throws Exception {
         // Given (준비): 이메일을 공백으로 설정하여 유효성 검사 실패 유도
         // DTO가 @Builder의 @Wither를 지원한다고 가정
-        UserRegisterRequest invalidRequest = validRegisterRequest.withEmail(" "); 
+        // withEmail() 대신 새로운 DTO 생성 방식으로 수정 (일반적인 DTO 테스트 패턴)
+        UserRegisterRequest invalidRequest = UserRegisterRequest.builder()
+                .email(" ") // 공백 이메일
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
+                .phoneNumber(TEST_PHONE_NUMBER)
+                .build();
         
         // When & Then (실행 및 검증): 400 Bad Request와 에러 메시지 검증
         performRegisterPost(invalidRequest)
@@ -199,7 +221,6 @@ class AuthControllerTest {
         // (약속): 가짜 AuthService에게 "login"이 호출되면 InvalidCredentialException 에러를 던지도록 약속합니다.
         String errorMessage = "유효하지 않은 이메일 또는 비밀번호입니다.";
 
-        // 기존: .willThrow(new AuthenticationException(errorMessage));
         // 👇👇👇 변경: 우리가 정의한 예외로 변경 👇👇👇
         given(authService.login(any(UserLoginRequest.class)))
             .willThrow(new InvalidCredentialException(errorMessage)); 
@@ -210,5 +231,47 @@ class AuthControllerTest {
             .andExpect(status().isUnauthorized()) // HTTP 상태 코드가 401 Unauthorized인지 확인
             .andExpect(jsonPath("$.message").value(errorMessage)) // 에러 메시지가 일치하는지 확인
             .andDo(print());
+    }
+
+    // =================================================================================
+    // 3. ID 찾기 시나리오 (POST /api/auth/find-id) // 💡 새로운 시나리오 추가
+    // =================================================================================
+    
+    @Test
+    @DisplayName("ID 찾기_성공: 유효한 정보로 요청 시 200 OK와 마스킹된 ID를 반환해야 한다")
+    void findId_Success() throws Exception {
+        // given (준비)
+        UserIdFindResponse mockResponse = UserIdFindResponse.builder()
+                .maskedUserId(MASKED_USER_ID)
+                .message("성공적으로 회원님의 ID를 찾았습니다. 마스킹된 ID를 확인해주세요.")
+                .build();
+        
+        // 💡 Mock 설정: Service가 성공 응답 DTO를 반환하도록 설정
+        given(authService.findIdByPhoneAndUsername(any(UserIdFindRequest.class))).willReturn(mockResponse);
+
+        // when & then (실행 및 검증)
+        performFindIdPost(validFindIdRequest) // 💡 새로 추가된 헬퍼 사용
+                .andExpect(status().isOk()) // 💡 HTTP 200 OK를 검증
+                .andExpect(jsonPath("$.maskedUserId").value(MASKED_USER_ID)) // 💡 응답 JSON의 maskedUserId 필드 검증
+                .andExpect(jsonPath("$.message").exists())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("ID 찾기_실패: 정보 불일치 시 Service가 AuthenticationException을 던지고 401 Unauthorized를 반환해야 한다")
+    void findId_Fail_AuthenticationException() throws Exception {
+        // given (준비)
+        String errorMessage = "입력 정보와 일치하는 계정이 없습니다.";
+        
+        // 💡 Mock 설정: Service가 AuthenticationException을 던지도록 설정
+        given(authService.findIdByPhoneAndUsername(any(UserIdFindRequest.class)))
+                // GlobalExceptionHandler가 이 예외를 401로 매핑합니다.
+                .willThrow(new AuthenticationException(errorMessage)); 
+
+        // when & then (실행 및 검증)
+        performFindIdPost(validFindIdRequest) // 💡 새로 추가된 헬퍼 사용
+                .andExpect(status().isUnauthorized()) // 💡 HTTP 401 Unauthorized를 검증
+                .andExpect(jsonPath("$.message").value(errorMessage)) // 💡 에러 메시지 검증
+                .andDo(print());
     }
 }

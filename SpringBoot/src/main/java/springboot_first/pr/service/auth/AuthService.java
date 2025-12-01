@@ -1,5 +1,6 @@
 package springboot_first.pr.service.auth;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -7,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import springboot_first.pr.dto.userDTO.request.UserIdFindRequest;
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
 import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
+import springboot_first.pr.dto.userDTO.response.UserIdFindResponse;
 import springboot_first.pr.dto.userDTO.response.UserLoginResponse;
 import springboot_first.pr.dto.userDTO.response.UserRegisterResponse;
 import springboot_first.pr.entity.User;
@@ -123,7 +126,7 @@ public class AuthService {
     //     return UserLoginResponse.from(user, token);
     // }
 
-    // // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 로그인 Private 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 로그인 Private 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
     // // 💡 [현업 패턴] 3가지 식별자 중 유효한 하나를 찾기 위한 내부 로직
     // private Optional<User> findUserByIdentifier(UserLoginRequest request) {
@@ -182,4 +185,75 @@ public class AuthService {
         return UserLoginResponse.from(user, accessToken, refreshToken);
     }
 
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 계정 찾기 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+     /**
+     * ✅ UserIdFindResponse를 위한 핵심 비즈니스 로직
+     * - 휴대폰 번호를 기반으로 사용자 ID를 찾고 마스킹하여 반환합니다.
+     */
+    // @Transactional(readOnly = true)
+    // public UserIdFindResponse findIdByPhoneAndUsername(UserIdFindRequest requestDto) {
+    //     log.info("AuthService.findIdByPhoneNumber() 호출: 계정 찾기 시도");
+
+    //     String phoneNumber = requestDto.getPhoneNumber(); 
+
+    //     // 1️⃣ 휴대폰 번호를 사용하여 사용자 조회 (조회 실패 시 예외 발생)
+    //     User user = userRepository.findIdByPhoneAndUsername(phoneNumber)
+    //          .orElseThrow(() -> {
+    //              log.warn("계정 찾기 시도 실패: 휴대폰 번호 {}로 사용자를 찾을 수 없습니다.", phoneNumber);
+    //              // 💡 [핵심] 데이터를 찾지 못했을 때 표준적인 예외인 NoSuchElementException 사용
+    //              // 이 예외는 글로벌 예외 핸들러에서 404 Not Found로 매핑되는 것이 일반적입니다.
+    //              return new NoSuchElementException("요청하신 정보와 일치하는 사용자를 찾을 수 없습니다."); 
+    //          });
+        
+    //     log.debug("사용자 조회 성공. UserId: {}", user.getUserId());
+
+    //     // 2️⃣ 핵심 비즈니스 로직: UserId 마스킹
+    //     String originalUserId = user.getUserId();
+    //     String maskedId = maskUserId(originalUserId); // ⬅️ 마스킹 유틸리티 호출
+
+    //     // 3️⃣ Response DTO 생성 및 반환
+    //     log.info("AuthService.findIdByPhoneNumber() 응답 성공: 마스킹된 ID 반환");
+    //     return UserIdFindResponse.builder()
+    //             .maskedUserId(maskedId)
+    //             .message("계정 찾기 성공: 마스킹된 ID를 반환합니다.")
+    //             .build();
+    // }
+
+    // /**
+    //  * 💡 헬퍼 메서드: UserId를 마스킹하는 로직
+    //  * - 첫 글자만 남기고 나머지는 '*'로 처리합니다. (예: "testuser123" -> "t**********")
+    //  */
+    // private String maskUserId(String userId) {
+    //     if (userId == null || userId.length() <= 1) {
+    //         return userId;
+    //     }
+    //     // 첫 글자 추출 + (길이-1)만큼 '*' 반복
+      
+    // }
+    @Transactional(readOnly = true)
+    public UserIdFindResponse findIdByPhoneAndUsername(UserIdFindRequest request) {
+        log.info("ID 찾기 서비스 시작: phone={}, username={}", request.getPhoneNumber(), request.getUsername());
+        
+        // 1. Repository 호출 (성공/실패 분기점)
+        Optional<User> userOptional = userRepository.findByPhoneNumberAndUsername(
+            request.getPhoneNumber(), 
+            request.getUsername()
+        );
+
+        // 2. 조회 결과 처리
+        // 🚨 실패 시: Optional.orElseThrow()를 사용하여 값이 없으면 예외 발생 
+        User foundUser = userOptional.orElseThrow(() -> {
+            log.warn("ID 찾기 실패: 휴대폰 번호 또는 본명이 일치하는 회원이 없습니다.");
+            
+            // 💡 [Red -> Green] AuthenticationException 발생 요구 사항 충족
+            throw new AuthenticationException("입력 정보와 일치하는 계정이 없습니다."); 
+        });
+
+        // 3. 성공 시: DTO로 변환하여 마스킹된 ID 반환
+        // 💡 [Red -> Green] 마스킹된 응답 DTO 반환 요구 사항 충족
+        return UserIdFindResponse.from(foundUser);
+    }
 }

@@ -31,59 +31,82 @@ class UserIdFindRequestTest {
         validator = factory.getValidator();
     }
 
-    // ✅ 유효성 성공 테스트 작성하기 (@NotBlank, @Pattern 모두 통과)
-    @Test // 4️⃣ 이 메서드가 테스트 메서드임을 선언
+    // 이렇게 한줄로도 작성 가능  : private final Validator 유효성_검사기 = Validation.buildDefaultValidatorFactory().getValidator();
+
+
+    // ⚠️ 4️⃣ 테스트에 사용할 유효한 상수값 private 함수로 따로 빼기
+    private final String VALID_PHONE = "010-1234-5678";
+    private final String VALID_USERNAME = "홍길동";
+
+    
+    // 💡 5️⃣ 헬퍼 메서드: ✅ 유효한 기본 DTO 빌더를 생성하여 각 테스트의 중복 코드 줄이기
+    private UserIdFindRequest.UserIdFindRequestBuilder createValidRequestBuilder() {
+        return UserIdFindRequest.builder()
+                .phoneNumber(VALID_PHONE)
+                .username(VALID_USERNAME);
+    }
+
+    
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+    // 6️⃣ ✅ 유효성 성공 테스트 작성하기 (@NotBlank, @Pattern 모두 통과)
+    @Test //  이 메서드가 테스트 메서드임을 선언
     @DisplayName("성공: 휴대폰 번호가 유효한 형식(010-xxxx-xxxx)이면 위반이 없어야 한다.") // 테스트 클래스에 이름 붙이기
     void validation_success() {
-        // 5️⃣ given (준비) : DTO의 @Pattern 규칙에 맞는 완벽한 형식의 휴대폰 번호
-        UserIdFindRequest request = UserIdFindRequest.builder()
-                .phoneNumber("010-1234-5678") // 💡 하이픈을 포함한 올바른 형식으로 수정
-                .build();
+        // given : DTO의 모든 규칙에 맞는 완벽한 형식의 요청
+        UserIdFindRequest request = createValidRequestBuilder().build();
 
-        // 6️⃣ when (실행) : 유효성 검사 수행 
-        // ⚠️ assertThat(messages).contains(...) 항상 사용하기 ‼️ : 검증 메시지를 비교해 정확한 원인으로 실패했는지 확인 가능
+        // when : 유효성 검사 수행
         Set<ConstraintViolation<UserIdFindRequest>> violations = validator.validate(request);
 
-        // 7️⃣ then (검증) : 위반 사항이 0개여야 성공
+        // then : 위반 사항이 0개여야 성공
         assertThat(violations).isEmpty();
     }
 
-    // 8️⃣ 유효성 실패 테스트 작성하기 : @NotBlank 검증
 
-    @ParameterizedTest(name = "실패: 입력값 '{0}'")
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+    // 7️⃣ ❌ 휴대폰 번호 - @NotBlank 및 @Pattern 검증 실패
+
+    @ParameterizedTest(name = "실패: 휴대폰 번호 입력값 '{0}'")
     // @ParameterizedTest: 여러 입력값(빈 문자열 "", 공백 문자열 " ")으로 반복 테스트 -> 어떻게 돌아가는지 알아보기
     @ValueSource(strings = {"", " "}) 
     // @ValueSource: 테스트에 사용할 입력값 목록 제공
-    @DisplayName("실패: 휴대폰 번호가 공백이거나 빈 문자열이면 @NotBlank 위반이 발생해야 한다.") // 테스트 클래스에 이름 붙이기
+    @DisplayName("실패: 휴대폰 번호가 공백이거나 빈 문자열이면 @NotBlank와 @Pattern 위반이 발생해야 한다.") // 테스트 클래스에 이름 붙이기
     void validation_fail_when_phone_number_is_blank(String blankValue) {
-        // 9️⃣ given (준비) : 공백 또는 빈 값으로 DTO 생성
-        UserIdFindRequest request = UserIdFindRequest.builder()
+        // given : 휴대폰 번호만 공백/빈 값으로 설정. username은 유효하게 유지.
+        UserIdFindRequest request = createValidRequestBuilder()
                 .phoneNumber(blankValue)
                 .build();
 
-        // 🔟 when (실행) : 유효성 검사 수행
+        // when : 유효성 검사 수행
         Set<ConstraintViolation<UserIdFindRequest>> violations = validator.validate(request);
 
-        // 1️⃣1️⃣ then (검증) : @NotBlank 위반이 발생해야 한다.
-        assertThat(violations).isNotEmpty();
-        
-        // 1️⃣2️⃣ @NotBlank 위반이 발생하고 메시지가 일치하는지 확인
+        // then : 위반 사항 검증
+        // ⚠️ 빈 문자열("")은 @NotBlank와 @Pattern 두 가지 모두 위반합니다.
+        // 공백 문자열(" ")은 @NotBlank와 @Pattern 두 가지 모두 위반할 가능성이 높습니다.
+        assertThat(violations.size()).as("휴대폰 번호 위반이 2개 발생해야 합니다.").isEqualTo(2);
+
         Set<String> messages = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toSet());
 
-        // ⚠️ 반드시 메시지를 비교해 정확한 원인(@NotBlank)으로 실패했는지 확인
+        // @NotBlank 메시지 확인
         assertThat(messages).contains("휴대폰 번호는 필수 입력 값입니다.");
-
-        // 💡 추가 검증: 빈 문자열("")의 경우 @NotBlank와 @Pattern 위반이 모두 발생해야 하므로 2개인지 확인
-        // (공백(" ")의 경우도 패턴 위반으로 잡힐 가능성이 높음)
-        // 위반 개수가 2개 이상인지 확인하는 것이 더 견고합니다.
-        assertThat(violations.size()).as("@NotBlank와 @Pattern 모두 위반되어야 합니다.").isGreaterThanOrEqualTo(1);
+        // @Pattern 메시지 확인
+        assertThat(messages).contains("유효한 휴대폰 번호 형식(010-xxxx-xxxx)이 아닙니다.");
     }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
     
-    // 1️⃣3️⃣ 유효성 실패 테스트 (Pattern 검증)
+    // 8️⃣ ❌ 휴대폰 번호 - @Pattern 검증 실패
     
-    @ParameterizedTest(name = "실패: 입력값 '{0}'")
+    @ParameterizedTest(name = "실패: 휴대폰 번호 입력값 '{0}'")
     // DTO의 @Pattern 규칙 (^010-\d{4}-\d{4}$)에 어긋나는 값들
     @ValueSource(strings = {"01012345678",      // ❌ 하이픈 없음
                             "010-123-4567",     // ❌ 중간 숫자 3자리
@@ -91,26 +114,79 @@ class UserIdFindRequestTest {
                             "abc-1234-5678"})   // ❌ 숫자 외 문자 포함 
     @DisplayName("실패: 휴대폰 번호가 형식(@Pattern)에 맞지 않으면 위반이 발생해야 한다.") // 테스트 클래스에 이름 붙이기
     void validation_fail_when_phone_number_is_invalid_format(String invalidValue) {
-        // 1️⃣4️⃣ given (준비) : 유효하지 않은 값으로 DTO 생성
-        UserIdFindRequest request = UserIdFindRequest.builder()
+        // given : 휴대폰 번호만 유효하지 않은 값으로 설정. (이는 @NotBlank는 통과합니다.)
+        UserIdFindRequest request = createValidRequestBuilder()
                 .phoneNumber(invalidValue)
                 .build();
 
-        // 1️⃣5️⃣ when (실행) : 유효성 검사 수행
+        // when : 유효성 검사 수행
         Set<ConstraintViolation<UserIdFindRequest>> violations = validator.validate(request);
         
-        // 1️⃣6️⃣ then (검증) : 위반 사항이 1개 발생하고 메시지가 @Pattern 메시지와 일치해야 한다.
-        assertThat(violations).isNotEmpty(); 
-
-        // 1️⃣7️⃣ 위반 메시지를 Set으로 추출
+        // then : @Pattern 위반만 1개 발생해야 합니다.
+        assertThat(violations.size()).as("@Pattern 위반만 1개 발생해야 합니다.").isEqualTo(1);
+        
         Set<String> messages = violations.stream()
             .map(ConstraintViolation::getMessage)
             .collect(Collectors.toSet());
             
-        // 1️⃣8️⃣ 추출된 메시지 집합에 예상 메시지(@Pattern)가 포함되어 있는지 확인
+        // @Pattern 메시지 확인
         assertThat(messages).contains("유효한 휴대폰 번호 형식(010-xxxx-xxxx)이 아닙니다.");
-        
-        // 1️⃣9️⃣ 추가 검증: 이 테스트는 @NotBlank는 통과하고 @Pattern만 실패해야 하므로, 위반 개수가 1개인지 확인
-        assertThat(violations.size()).as("@Pattern 위반만 1개 발생해야 합니다.").isEqualTo(1);
     }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+    // ❌ 사용자 이름 - @NotBlank 검증 실패
+    @ParameterizedTest(name = "실패: 이름 입력값 '{0}'")
+    @ValueSource(strings = {"", " "}) 
+    @DisplayName("실패: 사용자 이름이 공백이거나 빈 문자열이면 @NotBlank 위반이 발생해야 한다.")
+    void validation_fail_when_username_is_blank(String blankValue) {
+        // given : 사용자 이름만 공백/빈 값으로 설정. phoneNumber는 유효하게 유지.
+        UserIdFindRequest request = createValidRequestBuilder()
+                .username(blankValue)
+                .build();
+
+        // when : 유효성 검사 수행
+        Set<ConstraintViolation<UserIdFindRequest>> violations = validator.validate(request);
+
+        // then : @NotBlank 위반 1개만 발생해야 합니다.
+        assertThat(violations.size()).as("사용자 이름 위반 1개만 발생해야 합니다.").isEqualTo(1);
+        
+        Set<String> messages = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toSet());
+
+        // @NotBlank 메시지 확인
+        assertThat(messages).contains("이름은 필수 입력 값입니다.");
+    }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+    
+    
+    // ❌ 사용자 이름 - @Size 검증 실패
+    @Test
+    @DisplayName("실패: 사용자 이름이 최대 길이(50자)를 초과하면 위반이 발생해야 한다.")
+    void validation_fail_when_username_is_too_long() {
+        // given : 51자 이름 생성
+        String tooLongUsername = "a".repeat(51);
+        UserIdFindRequest request = createValidRequestBuilder()
+                .username(tooLongUsername)
+                .build();
+
+        // when : 유효성 검사 수행
+        Set<ConstraintViolation<UserIdFindRequest>> violations = validator.validate(request);
+
+        // then : @Size 위반 1개만 발생해야 합니다.
+        assertThat(violations.size()).as("사용자 이름 길이 위반 1개만 발생해야 합니다.").isEqualTo(1);
+        
+        Set<String> messages = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toSet());
+        
+        // @Size 메시지 확인
+        assertThat(messages).contains("사용자 이름은 50자를 초과할 수 없습니다.");
+    }
+
 }

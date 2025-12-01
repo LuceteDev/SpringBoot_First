@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import springboot_first.pr.dto.userDTO.request.UserIdFindRequest;
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
 import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
+import springboot_first.pr.dto.userDTO.response.UserIdFindResponse;
 import springboot_first.pr.dto.userDTO.response.UserLoginResponse;
 import springboot_first.pr.dto.userDTO.response.UserRegisterResponse;
 import springboot_first.pr.service.auth.AuthService;
@@ -16,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Slf4j
 @RestController // 1️⃣컨트롤러 선언 ✅ 회원가입, 로그인, 토큰 갱신, 비밀번호 찾기 구현
@@ -68,5 +73,31 @@ public class AuthController {
       // ⚠️ 테스트 코드에 201 Created 상태 코드로 응답
       // return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }  
+
+
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+  // ✅ GET -> POST로 변경 - 계정 찾기 //
+  @PostMapping("/find-id")
+  public ResponseEntity<UserIdFindResponse> IdFind(@Valid @RequestBody UserIdFindRequest request) {
+      log.info("POST /api/auth/IdFind 호출됨"); // 💡 [로깅] 요청 진입 확인
+
+      // ✅ [핵심] JSON -> DTO 변환 직후, DTO 객체의 내부 상태를 출력합니다.
+      // ⚠️ 얘 출력할거면 요청 DTO에 @ToString 어노테이션 추가해야 함‼️
+      log.info("변환된 UserIdFindRequest DTO 내부 상태: {}", request); 
+      // 1️⃣ 서비스에 위임하여 회원가입 및 DB 저장
+      UserIdFindResponse responseDto = authService.findIdByPhoneAndUsername(request);
+
+    
+      // 2️⃣ 결과 응답
+      log.info("계정 찾기 응답 성공: Status 200 OK"); // 💡 [로깅] 응답 직전
+      // return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+      // Spring Boot (Jackson 라이브러리)가 ResponseEntity에 담긴 Response DTO 객체를 보고 응답 JSON 문자열로 자동으로 변환
+      // ⚠️ 테스트 코드에 201 Created 상태 코드로 응답
+      return new ResponseEntity<>(responseDto, HttpStatus.OK);
+  }
+
+
+
 }
 

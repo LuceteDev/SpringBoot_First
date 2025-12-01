@@ -2,6 +2,7 @@ package springboot_first.pr.dto.userDTO.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,4 +25,9 @@ public class UserIdFindRequest {
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", 
              message = "유효한 휴대폰 번호 형식(010-xxxx-xxxx)이 아닙니다.")
     private String phoneNumber;
+
+    // 2️⃣ 본명 (사용자 이름)
+    @NotBlank(message = "이름은 필수 입력 값입니다.")
+    @Size(max = 50, message = "사용자 이름은 50자를 초과할 수 없습니다.")
+    private String username; // 본명
 }
