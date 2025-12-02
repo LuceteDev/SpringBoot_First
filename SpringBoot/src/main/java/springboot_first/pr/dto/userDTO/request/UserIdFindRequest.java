@@ -20,7 +20,6 @@ public class UserIdFindRequest {
 
     // 1️⃣ @NotBlank: 휴대폰 번호는 필수 입력값 (공백/빈 문자열 불가)
     @NotBlank(message = "휴대폰 번호는 필수 입력 값입니다.")
-
     // 2️⃣ @Pattern: 대한민국 일반 휴대폰 번호 형식 (010-XXXX-XXXX)만 허용
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", 
              message = "유효한 휴대폰 번호 형식(010-xxxx-xxxx)이 아닙니다.")

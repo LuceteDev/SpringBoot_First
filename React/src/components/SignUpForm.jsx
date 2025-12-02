@@ -74,7 +74,7 @@ const SignUpForm = ({ onClose, onFormOpen }) => {
               type="email"
               id="email"
               required
-              placeholder="이메일을 입력하세요"
+              placeholder="이메일은 영문, 숫자, 마침표(.)로 구성되어야 하며 도메인은 '@email.com'이어야 합니다."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

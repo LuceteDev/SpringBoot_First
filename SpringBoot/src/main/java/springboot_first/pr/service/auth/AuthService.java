@@ -1,6 +1,5 @@
 package springboot_first.pr.service.auth;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +29,9 @@ public class AuthService {
   // 3️⃣ 리포지터리 객체 주입 : final로 선언해야 @RequiredArgsConstructor가 생성자를 통해 주입해 줌‼️
   private final UserRepository userRepository;
 
+  // 회원가입시에 사용될 고정 이메일 도메인
+  private static final String FIXED_EMAIL_DOMAIN = "@email.com";
+
   // 💡 비밀번호 암호화를 위한 객체 주입 -> 엔티티 from 메서드로 전달
   // private final BCryptPasswordEncoder passwordEncoder; // 👈 BCryptPasswordEncoder 객체 주입 (Configuration 필요)
   private final PasswordEncoder passwordEncoder;
@@ -37,114 +39,59 @@ public class AuthService {
   // 로그인시에 사용될 토근 주입
   private final TokenProvider tokenProvider; 
 
+
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 회원가입 로직 시작 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
   // 4️⃣ 트랜잭션 선언 후 메서드 정의하기
   @Transactional
   public UserRegisterResponse register(UserRegisterRequest requestDto){
-  log.info("회원가입 요청 시작: userEmail={}", requestDto.getEmail()); // 💡 [로깅] 요청 시작
-
     // 5️⃣ 유효성 검사 (중복 사용자 체크)
-    // 아이디, 이메일, 전화번호 중복을 모두 체크 
-    // if (userRepository.findByUserId(requestDto.getUserId()).isPresent()) {
-    //     log.warn("중복 사용자 ID 시도 감지: {}", requestDto.getUserId()); // 💡 [로깅] 경고
-    //     throw new IllegalArgumentException("회원가입 실패: 이미 존재하는 사용자 ID입니다.");
-    // }
-    // if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-    //     log.warn("중복 이메일 시도 감지: {}", requestDto.getEmail());
-    //     throw new IllegalArgumentException("회원가입 실패: 이미 가입된 이메일입니다.");
-    // }
-    // if (userRepository.findByPhoneNumber(requestDto.getPhoneNumber()).isPresent()) {
-    //     log.warn("중복 전화번호 시도 감지: {}", requestDto.getPhoneNumber());
-    //     throw new IllegalArgumentException("회원가입 실패: 이미 가입된 전화번호입니다.");
-    // }
 
-                // 〰️〰️〰️ ⚠️ 비효율적인 이전 코드 (성능 저하) ⚠️ 〰️〰️〰️
-    // findBy...()는 존재 여부만 확인하려고 해도 해당 사용자의 모든 데이터(이름, 비밀번호 등)를 DB에서 가져와 메모리(Optional)에 로드
-    // 이는 존재 여부만 필요한 상황에서 불필요한 DB 부하를 유발
     
+    String userId = requestDto.getUserId();
+    // 1. 서비스 계층에서 최종 이메일 주소 구성 (비즈니스 로직)
+    String fullEmail = userId + FIXED_EMAIL_DOMAIN;
+
+    log.info("회원가입 요청 시작: userEmail={}", requestDto.getUserId()); // 💡 [로깅] 요청 시작
 
     // 5️⃣ 유효성 검사 (중복 사용자 체크) - ✅ existsBy... 메서드를 사용하여 최적화 하기 (DB 부담을 최소화하며 존재 여부만 확인)
-    // if (userRepository.existsByUserId(requestDto.getUserId())) {
-    //     log.warn("중복 사용자 ID 시도 감지: {}", requestDto.getUserId()); // 💡 [로깅] 경고
-    //     // Spring Boot에서 RuntimeException은 ControllerAdvice로 처리하는 것이 일반적입니다.
-    //     throw new RuntimeException("회원가입 실패: 이미 존재하는 사용자 ID입니다."); 
-    // }
-    if (userRepository.existsByEmail(requestDto.getEmail())) {
-        log.warn("중복 이메일 시도 감지: {}", requestDto.getEmail());
-        throw new RuntimeException("회원가입 실패: 이미 가입된 이메일입니다.");
-    }
-    if (userRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
-        log.warn("중복 전화번호 시도 감지: {}", requestDto.getPhoneNumber());
-        throw new RuntimeException("회원가입 실패: 이미 가입된 전화번호입니다.");
-    }     
+        // 5-1. 사용자 ID 중복 체크 (DB 부담을 최소화)
+        if (userRepository.existsByUserId(userId)) {
+            log.warn("중복 사용자 ID 시도 감지: {}", userId); // 💡 [로깅] 경고
+            // 💡 (수정) 일관된 예외 처리 사용
+            throw new AuthenticationException("회원가입 실패: 이미 존재하는 사용자 ID입니다."); 
+        }
+        
+        // 5-2. 구성된 이메일 주소 중복 체크
+        if (userRepository.existsByEmail(fullEmail)) {
+            log.warn("중복 이메일 시도 감지: {}", fullEmail);
+            // 💡 (수정) 일관된 예외 처리 사용
+            throw new AuthenticationException("회원가입 실패: 이미 가입된 이메일입니다.");
+        }
+        
+        // 5-3. 전화번호 중복 체크
+        if (userRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
+            log.warn("중복 전화번호 시도 감지: {}", requestDto.getPhoneNumber());
+            // 💡 (수정) 일관된 예외 처리 사용
+            throw new AuthenticationException("회원가입 실패: 이미 가입된 전화번호입니다.");
+        }
 
-    // 6️⃣ 중복 없을 경우 pw 암호화 해서 저장 후 User 엔티티로 반환 하기 
-    String encodePassword = passwordEncoder.encode(requestDto.getPassword());
-    log.debug("비밀번호 암호화 완료"); // 💡 [로깅] 암호화 완료
-    User newUser = User.from(requestDto, encodePassword);
+        // 6️⃣ 중복 없을 경우 pw 암호화 해서 저장 후 User 엔티티로 반환 하기 
+        String encodePassword = passwordEncoder.encode(requestDto.getPassword());
+        log.debug("비밀번호 암호화 완료"); // 💡 [로깅] 암호화 완료
+        
+        // 💡 구성된 fullEmail을 엔티티 팩토리 메서드로 전달
+        User newUser = User.from(requestDto, encodePassword, fullEmail);
 
-    // 7️⃣ DB 저장 및 상태 응답
-    log.debug("DB 저장 요청 (User Entity 생성 완료)"); // 💡 [로깅] DB 저장 직전
-    User savedUser = userRepository.save(newUser);
-    log.info("회원가입 성공 및 DB 저장 완료: ID={}", savedUser.getId()); // 💡 [로깅] 최종 성공
-    
-    return UserRegisterResponse.from(savedUser);
-    // 8️⃣ 응답 DTO에 from 메서드 정의하러 가기 -> 코드 자동 생성 이용
-    
-    // ⚠️ 테스트 코드 실습용 return
-    // return null;
-  } 
+        // 7️⃣ DB 저장 및 상태 응답
+        log.debug("DB 저장 요청 (User Entity 생성 완료)"); // 💡 [로깅] DB 저장 직전
+        User savedUser = userRepository.save(newUser);
+        log.info("회원가입 성공 및 DB 저장 완료: ID={}", savedUser.getId()); // 💡 [로깅] 최종 성공
+        
+        return UserRegisterResponse.from(savedUser);
+    } 
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 로그인 로직 시작 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
-
-    // @Transactional(readOnly = true) 
-    // public UserLoginResponse login(UserLoginRequest requestDto) {
-    //     log.info("AuthService.login() 호출: 로그인 시도");
-
-    //     // ⚠️ 세 가지 다른 필드(ID, Email, Phone) 중 어느 하나만 있어도 되니까
-    //     // SRP - 즉 단일 책임 원칙을 준수하게 findUserByIdentifier() priavte 메서드를 정의해서 분리한 것 ‼️
-
-    //     // 1️⃣ 식별자를 사용하여 사용자 조회 (ID, Email, Phone 중 하나)
-    //     User user = findUserByIdentifier(requestDto)
-    //         .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-    //     log.debug("식별자 조회 성공. UserId: {}", user.getUserId());
-
-    //     // 2️⃣ 비밀번호 검증 (현재는 평문 비교 대신 PasswordEncoder 사용)
-    //     // ⚠️ BCrypt는 단방향 해시 함수이므로, 복호화가 아닌 '입력된 비밀번호'를 다시 해시하여 '저장된 해시'와 비교해야 합니다.
-        
-    //     if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-    //          throw new RuntimeException("비밀번호가 일치하지 않습니다."); 
-    //     }
-    //     log.debug("비밀번호 검증 성공.");
-
-    //     // 3️⃣ 토큰 발급 (DummyTokenProvider 임시 토큰 사용)
-    //     String token = tokenProvider.createToken(user);
-    //     log.info("로그인 성공 및 토큰 발급 완료. UserId: {}", user.getUserId());
-
-    //     // 4️⃣ Response DTO 변환 및 반환
-    //     return UserLoginResponse.from(user, token);
-    // }
-
-    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 로그인 Private 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
-
-    // // 💡 [현업 패턴] 3가지 식별자 중 유효한 하나를 찾기 위한 내부 로직
-    // private Optional<User> findUserByIdentifier(UserLoginRequest request) {
-    //     // 💠 userId가 요청에 포함되어 있다면, userId로 조회 시도
-    //     if (request.getUserId() != null && !request.getUserId().isEmpty()) {
-    //         return userRepository.findByUserId(request.getUserId());
-    //     }
-    //     // 💠 email이 요청에 포함되어 있다면, email로 조회 시도
-    //     if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-    //         return userRepository.findByEmail(request.getEmail());
-    //     }
-    //     // 💠 phoneNumber가 요청에 포함되어 있다면, phoneNumber로 조회 시도
-    //     if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
-    //         return userRepository.findByPhoneNumber(request.getPhoneNumber());
-    //     }
-    //     return Optional.empty();
-    // }
-
 
     @Transactional(readOnly = true)
     public UserLoginResponse login(UserLoginRequest requestDto) {
@@ -188,51 +135,7 @@ public class AuthService {
 
     // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 계정 찾기 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-
-     /**
-     * ✅ UserIdFindResponse를 위한 핵심 비즈니스 로직
-     * - 휴대폰 번호를 기반으로 사용자 ID를 찾고 마스킹하여 반환합니다.
-     */
-    // @Transactional(readOnly = true)
-    // public UserIdFindResponse findIdByPhoneAndUsername(UserIdFindRequest requestDto) {
-    //     log.info("AuthService.findIdByPhoneNumber() 호출: 계정 찾기 시도");
-
-    //     String phoneNumber = requestDto.getPhoneNumber(); 
-
-    //     // 1️⃣ 휴대폰 번호를 사용하여 사용자 조회 (조회 실패 시 예외 발생)
-    //     User user = userRepository.findIdByPhoneAndUsername(phoneNumber)
-    //          .orElseThrow(() -> {
-    //              log.warn("계정 찾기 시도 실패: 휴대폰 번호 {}로 사용자를 찾을 수 없습니다.", phoneNumber);
-    //              // 💡 [핵심] 데이터를 찾지 못했을 때 표준적인 예외인 NoSuchElementException 사용
-    //              // 이 예외는 글로벌 예외 핸들러에서 404 Not Found로 매핑되는 것이 일반적입니다.
-    //              return new NoSuchElementException("요청하신 정보와 일치하는 사용자를 찾을 수 없습니다."); 
-    //          });
-        
-    //     log.debug("사용자 조회 성공. UserId: {}", user.getUserId());
-
-    //     // 2️⃣ 핵심 비즈니스 로직: UserId 마스킹
-    //     String originalUserId = user.getUserId();
-    //     String maskedId = maskUserId(originalUserId); // ⬅️ 마스킹 유틸리티 호출
-
-    //     // 3️⃣ Response DTO 생성 및 반환
-    //     log.info("AuthService.findIdByPhoneNumber() 응답 성공: 마스킹된 ID 반환");
-    //     return UserIdFindResponse.builder()
-    //             .maskedUserId(maskedId)
-    //             .message("계정 찾기 성공: 마스킹된 ID를 반환합니다.")
-    //             .build();
-    // }
-
-    // /**
-    //  * 💡 헬퍼 메서드: UserId를 마스킹하는 로직
-    //  * - 첫 글자만 남기고 나머지는 '*'로 처리합니다. (예: "testuser123" -> "t**********")
-    //  */
-    // private String maskUserId(String userId) {
-    //     if (userId == null || userId.length() <= 1) {
-    //         return userId;
-    //     }
-    //     // 첫 글자 추출 + (길이-1)만큼 '*' 반복
-      
-    // }
+    
     @Transactional(readOnly = true)
     public UserIdFindResponse findIdByPhoneAndUsername(UserIdFindRequest request) {
         log.info("ID 찾기 서비스 시작: phone={}, username={}", request.getPhoneNumber(), request.getUsername());
@@ -256,4 +159,16 @@ public class AuthService {
         // 💡 [Red -> Green] 마스킹된 응답 DTO 반환 요구 사항 충족
         return UserIdFindResponse.from(foundUser);
     }
+
+
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 비밀번호 변경 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+
+
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 비밀번호 재설정 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 }

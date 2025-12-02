@@ -52,21 +52,24 @@ public class UserRegisterRequest {
     // ✅ 회원가입 시 요청받는 필드 (Bean Validation 추가)
 
     // [1] 사용자 ID (로그인 아이디)
-    // @NotBlank(message = "사용자 ID는 필수 입력 값입니다.") // null, "", " "을 허용하지 않음
-    // @Size(min = 4, max = 20, message = "사용자 ID는 4자 이상 20자 이하로 입력해야 합니다.")
-    // private String userId; // 아이디
+    @NotBlank(message = "사용자 ID는 필수 입력 값입니다.") // null, "", " "을 허용하지 않음
+        // 💡 ID 패턴: 영문 소문자, 숫자, 하이픈/밑줄 포함 4~20자. (도메인 포함 안됨)
+    @Pattern(regexp = "^[a-z0-9_-]{4,20}$", 
+             message = "아이디는 4~20자의 영문 소문자, 숫자, 특수 기호(-, _)만 사용할 수 있습니다.")
+    // @Size(min = 4, max = 20, message = "사용자 ID는 4자 이상 20자 이하로 입력해야 합니다.") -> size의 양식을 패턴에 넣기!
+    private String userId; // 아이디
 
-    // [2] 이메일
-    @NotBlank(message = "이메일은 필수 입력 값입니다.")
-    @Email(message = "올바른 이메일 형식이 아닙니다.") // @와 .을 포함하는 유효한 이메일 형식인지 검사
-    @Size(max = 100, message = "이메일은 100자를 초과할 수 없습니다.")
-    // 💡 [핵심 변경] 구글식 도메인 및 로컬파트 패턴 강제 (a-z, 0-9, 점(.)만 허용)
-    // ^[a-zA-Z0-9.]+@email\\.com$
-    // - @ 앞부분은 영문, 숫자, 점(.)만 허용
-    // - 반드시 @email.com으로 끝나야 함
-    @Pattern(regexp = "^[a-zA-Z0-9.]+@email\\.com$",
-             message = "이메일은 영문, 숫자, 마침표(.)로 구성되어야 하며 도메인은 '@email.com'이어야 합니다.")
-    private String email; // 이메일
+    // [2] 이메일 -> 🔁 @email.com으로 고정 도메인을 사용할건데, 굳이 이메일을 받을 필요가 없다..!
+    // @NotBlank(message = "이메일은 필수 입력 값입니다.")
+    // @Email(message = "올바른 이메일 형식이 아닙니다.") // @와 .을 포함하는 유효한 이메일 형식인지 검사
+    // @Size(max = 100, message = "이메일은 100자를 초과할 수 없습니다.")
+    // // 💡 [핵심 변경] 구글식 도메인 및 로컬파트 패턴 강제 (a-z, 0-9, 점(.)만 허용)
+    // // ^[a-zA-Z0-9.]+@email\\.com$
+    // // - @ 앞부분은 영문, 숫자, 점(.)만 허용
+    // // - 반드시 @email.com으로 끝나야 함
+    // @Pattern(regexp = "^[a-zA-Z0-9.]+@email\\.com$",
+    //          message = "이메일은 영문, 숫자, 마침표(.)로 구성되어야 하며 도메인은 '@email.com'이어야 합니다.")
+    // private String email; // 이메일
 
     // [3] 본명 (사용자 이름)
     @NotBlank(message = "이름은 필수 입력 값입니다.")
@@ -75,7 +78,11 @@ public class UserRegisterRequest {
 
     // [4] 비밀번호
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
-    @Size(min = 8, max = 30, message = "비밀번호는 8자 이상 30자 이하로 입력해야 합니다.")
+    @Size(min = 8, max = 20, message = "비밀번호는 8자 이상, 20자 이하로 입력해야 합니다.")
+    // 대문자, 소문자, 숫자, 특수 문자 중 3가지 이상을 포함 (또는 4가지 모두) 
+    // ⚠️ 공백 금지를 요청 DTO에서는 (?=\\S+$) 이렇게 \\ 2개만 보내야 함
+    @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,20}", 
+             message = "비밀번호는 8~20자의 영문 대소문자, 숫자, 특수 문자(!@#$%^&+=)를 모두 포함해야 합니다.")
     // TODO: 현업에서는 아래와 같이 복잡성 패턴도 추가할 수 있습니다.
     // @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
     //          message = "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.")

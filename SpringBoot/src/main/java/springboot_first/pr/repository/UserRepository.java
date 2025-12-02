@@ -12,7 +12,7 @@ import springboot_first.pr.entity.User;
 public interface UserRepository extends JpaRepository<User, Long>{
 
   // ⚠️ 회원가입때 진행하는 쿼리들은 DB 부하를 줄이기 위해 boolean 을 사용할 것 ⚠️ //
-  // boolean existsByUserId(String userId); ❌ 이제 사용 안함
+  boolean existsByUserId(String userId);
   boolean existsByEmail(String email);
   boolean existsByPhoneNumber(String phoneNumber);
 
@@ -37,7 +37,12 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
 
 
-  // 〰️〰️〰️ 💠 계정(이메일) 찾기에 사용✅ 〰️〰️〰️ //
+  // 〰️〰️〰️ 💠 계정(이메일) 찾기에 사용 〰️〰️〰️ //
   Optional<User> findByPhoneNumberAndUsername(String phoneNumber, String username);
+
+
+  // 〰️〰️〰️ 💠 비밀번호 재설정에 사용 ✅ 〰️〰️〰️ //
+  // 사용자 ID와 휴대폰 번호가 일치하는 계정을 찾아 신원 확인 (비밀번호 변경 전 검증 단계)
+  Optional<User> findByUserIdAndPhoneNumber(String userId, String phoneNumber);
 
 }
