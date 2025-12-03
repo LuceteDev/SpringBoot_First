@@ -25,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
 import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
 import springboot_first.pr.dto.userDTO.request.UserIdFindRequest; 
-import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
 import springboot_first.pr.dto.userDTO.response.UserIdFindResponse;
 import springboot_first.pr.dto.userDTO.response.UserLoginResponse;
 import springboot_first.pr.dto.userDTO.response.UserRegisterResponse;

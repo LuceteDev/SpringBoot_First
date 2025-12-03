@@ -36,7 +36,6 @@ public interface UserRepository extends JpaRepository<User, Long>{
   Optional<User> findByPhoneNumber(String phoneNumber);
 
 
-
   // 〰️〰️〰️ 💠 계정(이메일) 찾기에 사용 〰️〰️〰️ //
   Optional<User> findByPhoneNumberAndUsername(String phoneNumber, String username);
 
@@ -46,3 +45,4 @@ public interface UserRepository extends JpaRepository<User, Long>{
   Optional<User> findByUserIdAndPhoneNumber(String userId, String phoneNumber);
 
 }
+

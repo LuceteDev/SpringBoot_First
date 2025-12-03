@@ -12,7 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
+import springboot_first.pr.dto.userDTO.request.UserPasswordResetRequest;
 import springboot_first.pr.dto.userDTO.response.UserPasswordChangeResponse;
+import springboot_first.pr.dto.userDTO.response.UserPasswordResetResponse;
 import springboot_first.pr.service.user.UserService;
 
 @Slf4j
@@ -26,7 +28,7 @@ public class UserController {
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-  @PatchMapping("/password")
+  @PatchMapping("/password/change")
   public ResponseEntity<UserPasswordChangeResponse> changePassword(
     @AuthenticationPrincipal String authenticatedUserId, // JWT/세션 기반 인증에서 ID를 자동으로 가져옴
     @Valid @RequestBody UserPasswordChangeRequest requestDto) {
@@ -38,5 +40,21 @@ public class UserController {
     
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
+
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+  @PatchMapping("/password/reset")
+  public ResponseEntity<UserPasswordResetResponse> resetPassword(
+    @Valid @RequestBody UserPasswordResetRequest requestDto) {
+    
+    log.info("비밀번호 변경 요청 접수(getUserId) - 인증된 ID: {}", requestDto.getUserId());
+    log.info("비밀번호 변경 요청 접수(toString) - 인증된 ID: {}", requestDto.toString());
+    
+    // 1️⃣ 서비스에 위임하여 DB에 비밀번호 변경
+    UserPasswordResetResponse response = userService.resetPassword(requestDto);
+    
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
 
 }

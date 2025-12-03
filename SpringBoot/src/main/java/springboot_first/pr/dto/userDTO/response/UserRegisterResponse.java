@@ -14,7 +14,6 @@ import springboot_first.pr.entity.User;
 @Getter // 각 필드 값을 조회할 수 있는 Getter 메서드 자동 생성
 @ToString // 모든 필드를 출력할 수 있는 toString 메서드 자동 생성, ✅ 로깅과 디버깅을 위해 추가
 @Builder // DTO 생성을 위한 빌더 패턴 추가 (테스트 코드 작성에 용이하다고 한다 ✅)
-
 @Slf4j // 로깅 사용 -> 이 로깅 메시지에 객체의 상태를 담기 위해 @ToString을 함께 사용
 
 public class UserRegisterResponse { 
