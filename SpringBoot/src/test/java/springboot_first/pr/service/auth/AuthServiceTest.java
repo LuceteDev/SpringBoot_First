@@ -23,10 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 // 필요한 DTO 및 Entity, Security Import
 import springboot_first.pr.dto.userDTO.request.UserLoginRequest;
+import springboot_first.pr.dto.userDTO.request.UserPasswordResetRequest;
 import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
 import springboot_first.pr.dto.userDTO.request.UserIdFindRequest; 
 import springboot_first.pr.dto.userDTO.response.UserIdFindResponse;
 import springboot_first.pr.dto.userDTO.response.UserLoginResponse;
+import springboot_first.pr.dto.userDTO.response.UserPasswordResetResponse;
 import springboot_first.pr.dto.userDTO.response.UserRegisterResponse;
 import springboot_first.pr.entity.User;
 import springboot_first.pr.exception.AuthenticationException;
@@ -37,36 +39,43 @@ import springboot_first.pr.security.TokenProvider;
 @DisplayName("Service 단위 테스트: AuthService - 계정 및 인증 관련 로직")
 class AuthServiceTest {
 
- // 1. 가짜(Mock) 객체 선언: 외부 의존성
- @Mock
- private UserRepository userRepository;
- @Mock
- private PasswordEncoder passwordEncoder;
- @Mock
- private TokenProvider tokenProvider; 
- 
- // 2. 테스트 대상(Service)에 Mock 객체를 주입합니다.
- @InjectMocks
- private AuthService authService;
- 
- // 테스트용 상수 및 변수 선언
- private UserRegisterRequest validRegisterRequest;
- private UserLoginRequest validLoginRequestById;
- private UserLoginRequest validLoginRequestByEmail;
- private UserLoginRequest validLoginRequestByPhone;
- private UserIdFindRequest validIdFindRequest;
- private User mockUser;
+// 1. 가짜(Mock) 객체 선언: 외부 의존성
+@Mock
+private UserRepository userRepository;
+@Mock
+private PasswordEncoder passwordEncoder;
+@Mock
+private TokenProvider tokenProvider; 
 
- 
- private final String RAW_PASSWORD = "password123!";
- private final String ENCODED_PASSWORD = "hashed_and_salted_pw";
- // Service가 userId 기반으로 생성할 것으로 예상되는 이메일 주소
- private final String TEST_EMAIL = "test@email.com"; 
- private final String TEST_USER_ID = "testuser123"; 
- private final String TEST_PHONE_NUMBER = "010-1234-5678";
- private final String TEST_USERNAME = "홍길동";
- private final String MOCK_ACCESS_TOKEN = "mock-access-token-123";
- private final String MOCK_REFRESH_TOKEN = "mock-refresh-token-456";
+// 2. 테스트 대상(Service)에 Mock 객체를 주입합니다.
+@InjectMocks
+private AuthService authService;
+
+// 테스트용 상수 및 변수 선언
+private UserRegisterRequest validRegisterRequest;
+private UserLoginRequest validLoginRequestById;
+private UserLoginRequest validLoginRequestByEmail;
+private UserLoginRequest validLoginRequestByPhone;
+private UserIdFindRequest validIdFindRequest;
+private UserPasswordResetRequest validPasswordResetRequest;
+private User mockUser;
+
+
+private final String RAW_PASSWORD = "password123!";
+private final String ENCODED_PASSWORD = "hashed_and_salted_pw";
+// Service가 userId 기반으로 생성할 것으로 예상되는 이메일 주소
+private final String TEST_EMAIL = "test@email.com"; 
+private final String TEST_USER_ID = "testuser123"; 
+private final String TEST_PHONE_NUMBER = "010-1234-5678";
+private final String TEST_USERNAME = "홍길동";
+private final String MOCK_ACCESS_TOKEN = "mock-access-token-123";
+private final String MOCK_REFRESH_TOKEN = "mock-refresh-token-456";
+
+private final String RESET_ENCODED_PASSWORD = "reset_hashed_pw";
+
+
+// 비밀번호 재설정 관련 상수
+private final String RESET_NEW_PASSWORD = "resetpass!@#";
 
  /**
  * 💡 헬퍼 메서드: 기본적으로 유효한 UserRegisterRequest 객체를 생성하여 반환 - 요청
@@ -97,6 +106,19 @@ class AuthServiceTest {
   .password(RAW_PASSWORD)
   .build();
  }
+
+
+/**
+ * 💡 헬퍼 메서드: 비밀번호 재설정 요청 DTO 생성
+ */
+private UserPasswordResetRequest createValidPasswordResetRequest() {
+    return UserPasswordResetRequest.builder()
+            .userId(TEST_USER_ID)
+            .phoneNumber(TEST_PHONE_NUMBER)
+            .newPassword(RESET_NEW_PASSWORD)
+            .build();
+}
+
  
  /**
  * 💡 헬퍼 메서드: 저장된 Mock User 엔티티 생성
@@ -120,6 +142,7 @@ class AuthServiceTest {
   this.validLoginRequestByEmail = createValidLoginRequest(TEST_EMAIL);
   this.validLoginRequestByPhone = createValidLoginRequest(TEST_PHONE_NUMBER);
   this.validIdFindRequest = createValidIdFindRequest();
+  this.validPasswordResetRequest = createValidPasswordResetRequest();
   this.mockUser = createMockSavedUser(ENCODED_PASSWORD);
  }
 
@@ -371,5 +394,58 @@ class AuthServiceTest {
   verify(userRepository, times(1)).findByPhoneNumberAndUsername(validIdFindRequest.getPhoneNumber(), validIdFindRequest.getUsername());
  }
  
+
+  // =================================================================================
+  // 1. 비밀번호 재설정 (Password Reset) 테스트 (핵심)
+  // =================================================================================
+
+  @Test
+  @DisplayName("비밀번호재설정_성공: 유효한 ID/휴대폰 번호로 비밀번호를 재설정하고 성공 응답을 반환해야 한다.")
+  void password_reset_success() {
+      // given (준비)
+      // 1. findByUserIdAndPhoneNumber Mocking: 사용자 찾기 성공
+      given(userRepository.findByUserIdAndPhoneNumber(TEST_USER_ID, TEST_PHONE_NUMBER))
+          .willReturn(Optional.of(mockUser));
+
+      // 2. encode Mocking: 새 비밀번호 인코딩 처리
+      given(passwordEncoder.encode(RESET_NEW_PASSWORD)).willReturn(RESET_ENCODED_PASSWORD);
+
+      // when (실행)
+      UserPasswordResetResponse response = authService.resetPassword(validPasswordResetRequest);
+
+      // then (검증)
+      // 1. Repository 호출 및 인코딩 호출 검증
+      verify(userRepository, times(1)).findByUserIdAndPhoneNumber(TEST_USER_ID, TEST_PHONE_NUMBER);
+      verify(passwordEncoder, times(1)).encode(RESET_NEW_PASSWORD);
+      
+      // 2. DB 업데이트 로직 검증: findUser 엔티티의 비밀번호가 변경되었는지 확인 (Dirty Checking/save()에 대한 결과)
+      // 서비스 코드가 save()를 명시적으로 호출하므로, save 호출도 검증합니다.
+      assertThat(mockUser.getPassword()).isEqualTo(RESET_ENCODED_PASSWORD);
+      verify(userRepository, times(1)).save(mockUser);
+      
+      // 3. 응답 검증
+      assertThat(response.isSuccess()).isTrue();
+      assertThat(response.getUserId()).isEqualTo(TEST_USER_ID);
+  }
+
+  @Test
+  @DisplayName("비밀번호재설정_실패_1: ID와 휴대폰 번호가 불일치할 때_AuthenticationException 발생")
+  void password_reset_fail_user_not_found() {
+      // given (준비)
+      // findByUserIdAndPhoneNumber Mocking: Optional.empty() 반환 설정
+      given(userRepository.findByUserIdAndPhoneNumber(anyString(), anyString()))
+          .willReturn(Optional.empty());
+
+      // when & then (실행 및 검증)
+      assertThrows(AuthenticationException.class, () -> {
+          authService.resetPassword(validPasswordResetRequest);
+      }, "사용자 정보 불일치 시 AuthenticationException이 발생해야 합니다.");
+
+      // 검증:
+      // findByUserIdAndPhoneNumber만 호출되고, 후속 로직(인코딩, 저장)은 호출되지 않아야 함
+      verify(userRepository, times(1)).findByUserIdAndPhoneNumber(anyString(), anyString());
+      verify(passwordEncoder, times(0)).encode(anyString());
+      verify(userRepository, times(0)).save(any(User.class));
+  }
 
 }
