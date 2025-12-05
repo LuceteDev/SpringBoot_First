@@ -25,4 +25,14 @@ public interface TokenProvider {
      * @return 토큰에서 추출된 사용자 ID (String)
      */
     String getUserIdFromToken(String token);
+
+    
+    // 토큰 유효성 검증
+    boolean validateToken(String token);
+
+    	/**
+	 * Access Token의 만료 시간(밀리초)을 반환합니다.
+	 * (주로 응답 DTO 구성을 위해 사용됩니다.)
+	 */
+	long getAccessExpirationMillis(); // 👈 시그니처 추가
 }

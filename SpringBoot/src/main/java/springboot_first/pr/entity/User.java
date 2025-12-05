@@ -9,7 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,11 +22,12 @@ import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
 @Entity // 해당 클래스가 엔티티임을 선언, 클래스 필드를 바탕으로 DB에 테이블 생성
 @Getter // 각 필드 값을 조회할 수 있는 Getter 메서드 자동 생성
 @ToString(exclude = "password") // pw 필드를 제외하고 모든 필드를 출력할 수 있는 toString 메서드 자동 생성
-@AllArgsConstructor // 모든 필드를 매개변수로 갖는 생성자 자동 생성
-@NoArgsConstructor // 매개변수가 아예 없는 기본 생성자 자동 생성
 @Builder // 서비스에서 엔티티 생성 시 훨씬 편함
 @Slf4j // 로깅 추가
 @Table(name = "users") // 👈 (중요) 실제 DB 테이블 이름인 "users"를 지정했습니다.
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // 모든 필드를 매개변수로 갖는 생성자 자동 생성
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // 매개변수가 아예 없는 기본 생성자 자동 생성
+// ✔ JPA 규칙 준수, 엔티티 생성 ∙ 수정 규칙 강제, 나중에 유지보수할 때 버그 확률 급감
 
 public class User {
 
@@ -66,13 +67,18 @@ public class User {
     // ⚠️ 입력값 형식을 엔티티에 강제하면 유연성이 떨어지고, 이러한 패턴, 검증 옵션은 DTO에서 처리해야함 ‼️
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
+
+
+    // 💡 [추가] 권한 필드 (AuthService 로직 준수)
+    @Column(nullable = false, length = 10)
+    private String role;
     
     // 〰️〰️〰️〰️〰️〰️〰️〰️ 6️⃣ UserRegisterRequest DTO 생성 하러 이동 〰️〰️〰️〰️〰️〰️〰️〰️ //
 
     //    Entity.from()은 외부 데이터(DTO)를 DB에 저장할 Entity 객체로 변환할 때 사용됨 ‼️
 
 	// 💡 정적 팩토리 메서드: DTO, 암호화된 비밀번호, 그리고 (서비스에서 구성된) 완전한 이메일 주소를 인수로 받음
-	public static User from(UserRegisterRequest requestDto, String encodedPassword, String fullEmail) {
+	public static User from(UserRegisterRequest requestDto, String encodedPassword, String fullEmail, String role) {
 		
 		log.info("User Entity from() 메서드 호출, userId: {}, 전달받은 email: {}", requestDto.getUserId(), fullEmail); 
 
@@ -82,6 +88,7 @@ public class User {
 				.username(requestDto.getUsername())
 				.password(encodedPassword) 
 				.phoneNumber(requestDto.getPhoneNumber())
+                .role(role != null ? role : "USER") // 기본값 설정
 				.build();
 	}
 
@@ -89,4 +96,10 @@ public class User {
 	public void setPassword(String newEncodedPassword) {
 		this.password = newEncodedPassword;
 	}
+
+    // 💡 비밀번호 재설정을 위한 전용 메서드 (Setter 사용을 지양하고 의도를 명확히 함)
+    public void updatePassword(String encodeNewPassword) {
+        this.password = encodeNewPassword; // 👈 비밀번호 필드 업데이트 구현
+        log.debug("User 엔티티 비밀번호 필드 업데이트 완료");
+    }
 }
