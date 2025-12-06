@@ -3,6 +3,7 @@ package springboot_first.pr.controller.user;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
 import springboot_first.pr.dto.userDTO.request.UserPasswordResetRequest;
+import springboot_first.pr.dto.userDTO.request.UserWithdrawalRequest;
 import springboot_first.pr.dto.userDTO.response.UserPasswordChangeResponse;
 import springboot_first.pr.dto.userDTO.response.UserPasswordResetResponse;
+import springboot_first.pr.dto.userDTO.response.UserWithdrawalResponse;
 import springboot_first.pr.service.user.UserService;
 
 @Slf4j
@@ -41,8 +44,18 @@ public class UserController {
   //   return ResponseEntity.status(HttpStatus.OK).body(response);
   // }
 
-  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
-
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 회원 탈퇴 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+  @DeleteMapping("/withdrawal") // DELETE HTTP 메서드 사용
+  public ResponseEntity<UserWithdrawalResponse> withdraw(
+          // Access Token에서 추출된 userId를 @AuthenticationPrincipal로 받습니다.
+          @AuthenticationPrincipal String userId, 
+          @Valid @RequestBody UserWithdrawalRequest requestDto
+  ) {
+      log.info("회원 탈퇴 API 요청 수신. Target UserId: {}", userId);
+      
+      UserWithdrawalResponse response = userService.withdraw(userId, requestDto);
+      return ResponseEntity.ok(response);
+  }
 
 
 

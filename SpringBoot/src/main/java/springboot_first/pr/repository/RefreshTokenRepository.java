@@ -2,6 +2,7 @@ package springboot_first.pr.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import springboot_first.pr.entity.RefreshToken;
 
@@ -10,10 +11,13 @@ import java.util.Optional;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 	
-	// ✅ 1. 로그아웃 / 비밀번호 재설정 시 해당 유저의 모든 Refresh Token을 무효화
-    // @Modifying
-	// int deleteByUserId(String userId); 
-    List<RefreshToken> findAllByUserId(String userId);
+	// ✅ 1. 토큰 무효화 (로그아웃, 비밀번호 재설정, 회원 탈퇴 시 사용) 해당 유저의 모든 Refresh Token을 무효화
+  @Modifying
+	@Query("DELETE FROM RefreshToken rt WHERE rt.userId = :userId") // 💡 JPQL 쿼리 명시
+	int deleteByUserId(String userId); // return 타입은 삭제된 row 수 (int)
+  
+	// ✅ 1. 처음 로그아웃 구현시 위 int 로는 실패해서 아래 list를 했으나, 회원탈퇴에는 사용해야 해서 지금은 주석처리
+	// List<RefreshToken> findAllByUserId(String userId);
 
 	// ✅ 2. 로그인 시 Refresh Token을 저장하거나 갱신할 때 기존 토큰이 있는지 조회
 	Optional<RefreshToken> findByUserId(String userId); 

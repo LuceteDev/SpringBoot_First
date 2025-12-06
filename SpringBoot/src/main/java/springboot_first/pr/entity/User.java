@@ -1,5 +1,7 @@
 package springboot_first.pr.entity;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -101,5 +103,16 @@ public class User {
     public void updatePassword(String encodeNewPassword) {
         this.password = encodeNewPassword; // 👈 비밀번호 필드 업데이트 구현
         log.debug("User 엔티티 비밀번호 필드 업데이트 완료");
+    }
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ SOFT DELETE 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    // @Column(name = "deleted_at")을 사용하여 DB 컬럼명 지정
+    // Soft Delete 구현을 위해 LocalDateTime을 사용
+    private LocalDateTime deletedAt; 
+
+    // Soft Delete 적용을 위한 메서드 추가 (엔티티 내부에서 상태 변경)
+    public void markAsDeleted() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

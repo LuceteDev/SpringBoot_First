@@ -272,7 +272,7 @@ public class AuthService {
 	private static final String FIXED_EMAIL_DOMAIN = "@email.com";
 	private static final String DEFAULT_ROLE = "USER"; // 💡 역할 상수 추가
 
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 1. 회원가입 로직 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 1️⃣ 회원가입 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 	@Transactional
 	public UserRegisterResponse register(UserRegisterRequest requestDto){
@@ -310,7 +310,7 @@ public class AuthService {
 		return UserRegisterResponse.from(savedUser);
 	} 
 
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 2. 로그인 로직 (Refresh Token 저장 포함) 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 2️⃣ 로그인 (Refresh Token 저장 포함) 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 	@Transactional // 💡 토큰 저장/갱신을 위해 @Transactional로 변경
 	public UserLoginResponse login(UserLoginRequest requestDto) {
@@ -359,7 +359,7 @@ public class AuthService {
 	}
 
 
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 3. 토큰 재발급 로직 (💡 새로 추가됨) 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 3️⃣ 토큰 재발급 (💡 새로 추가됨) 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 	@Transactional(readOnly = true)
 	public TokenRefreshResponse refreshToken(String userId, String refreshToken) {
@@ -387,37 +387,39 @@ public class AuthService {
 	}
 
 
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 4. 로그아웃 로직 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 4️⃣ 로그아웃 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-	// @Transactional
-	// public void logout(String userId) {
-	// 	log.info("로그아웃 요청 수신. User ID: {}", userId);
-		
-	// 	// 해당 userId와 연결된 Refresh Token을 DB에서 삭제(무효화)하여 강제 로그아웃 처리
-	// 	int deletedCount = refreshTokenRepository.deleteByUserId(userId);
+	@Transactional
+	public void logout(String userId) {
+			log.info("로그아웃 요청 수신. User ID: {}", userId);
+			
+			// 1. 해당 userId와 연결된 모든 Refresh Token을 DB에서 조회합니다.
+			// List<RefreshToken> tokensToDelete = refreshTokenRepository.findAllByUserId(userId);
+			
+			// if (!tokensToDelete.isEmpty()) {
+			// 		int deletedCount = tokensToDelete.size();
+					
+			// 		// 2. 조회된 모든 토큰 엔티티를 삭제합니다. (JPA 표준 삭제)
+			// 		refreshTokenRepository.deleteAll(tokensToDelete);
 
-	// 	log.info("User ID: {}의 Refresh Token 무효화 완료. 삭제된 토큰 수: {}", userId, deletedCount);
-	// }
-	    @Transactional
-    public void logout(String userId) {
-        log.info("로그아웃 요청 수신. User ID: {}", userId);
-        
-        // 1. 해당 userId와 연결된 모든 Refresh Token을 DB에서 조회합니다.
-        List<RefreshToken> tokensToDelete = refreshTokenRepository.findAllByUserId(userId);
-        
-        if (!tokensToDelete.isEmpty()) {
-            int deletedCount = tokensToDelete.size();
-            
-            // 2. 조회된 모든 토큰 엔티티를 삭제합니다. (JPA 표준 삭제)
-            refreshTokenRepository.deleteAll(tokensToDelete);
+			// 		log.info("User ID: {}의 Refresh Token 무효화 완료. 삭제된 토큰 수: {}", userId, deletedCount);
+			// } else {
+			// 		log.warn("User ID: {}에 대해 무효화할 Refresh Token이 존재하지 않습니다.", userId);
+			// }
 
-            log.info("User ID: {}의 Refresh Token 무효화 완료. 삭제된 토큰 수: {}", userId, deletedCount);
-        } else {
-            log.warn("User ID: {}에 대해 무효화할 Refresh Token이 존재하지 않습니다.", userId);
-        }
+			    // 💡 1. RefreshTokenRepository의 deleteByUserId 메서드를 직접 호출합니다.
+    // 이는 하나의 DELETE SQL 쿼리를 실행하여 해당 userId의 모든 토큰을 한 번에 삭제합니다.
+    int deletedCount = refreshTokenRepository.deleteByUserId(userId);
+    
+    // 2. 로그 기록
+    if (deletedCount > 0) {
+        log.info("로그아웃 완료: User ID: {}의 Refresh Token 무효화 완료. 삭제된 토큰 수: {}", userId, deletedCount);
+    } else {
+        log.warn("로그아웃 경고: User ID: {}에 대해 무효화할 Refresh Token이 존재하지 않습니다.", userId);
     }
+	}
 	
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 5. 계정 찾기 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 5️⃣ 계정 찾기 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 	@Transactional(readOnly = true)
 	public UserIdFindResponse findIdByPhoneAndUsername(UserIdFindRequest request) {
@@ -438,67 +440,52 @@ public class AuthService {
 	}
 
 
-	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 6. 비밀번호 재설정 메서드 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 6️⃣ 비밀번호 재설정 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-	// @Transactional
-	// public UserPasswordResetResponse resetPassword(UserPasswordResetRequest requestDto){
-	// 	log.info("=== 비밀번호 재설정 서비스 시작. 사용자 ID: {} ===", requestDto.getUserId());
+  @Transactional
+	public UserPasswordResetResponse resetPassword(UserPasswordResetRequest requestDto){
+		log.info("=== 비밀번호 재설정 서비스 시작. 사용자 ID: {} ===", requestDto.getUserId());
 		
-	// 	// 사용자 ID와 휴대폰 번호로 사용자 인증
-	// 	Optional<User> userOptional = userRepository.findByUserIdAndPhoneNumber(
-	// 		requestDto.getUserId(),
-	// 		requestDto.getPhoneNumber()
-	// 	);
+		// 사용자 ID와 휴대폰 번호로 사용자 인증
+		Optional<User> userOptional = userRepository.findByUserIdAndPhoneNumber(
+				requestDto.getUserId(),
+				requestDto.getPhoneNumber()
+		);
 
-	// 	User foundUser = userOptional.orElseThrow(() -> {
-	// 		log.warn("비밀번호 재설정 실패: ID 또는 휴대폰 번호가 일치하는 회원이 없습니다. UserId: {}", requestDto.getUserId());
-	// 		throw new AuthenticationException("입력 정보와 일치하는 계정이 없습니다."); 
-	// 	});
+		User foundUser = userOptional.orElseThrow(() -> {
+				log.warn("비밀번호 재설정 실패: ID 또는 휴대폰 번호가 일치하는 회원이 없습니다. UserId: {}", requestDto.getUserId());
+				throw new AuthenticationException("입력 정보와 일치하는 계정이 없습니다."); 
+		});
 
-	// 	// 새 비밀번호 암호화 후 엔티티 업데이트
-	// 	String encodeNewPassword = passwordEncoder.encode(requestDto.getNewPassword());
-	// 	foundUser.updatePassword(encodeNewPassword); // 💡 User 엔티티의 업데이트 메서드 사용
+		// 새 비밀번호 암호화 후 엔티티 업데이트
+		String encodeNewPassword = passwordEncoder.encode(requestDto.getNewPassword());
+		foundUser.updatePassword(encodeNewPassword); 
 		
-	// 	// Refresh Token 삭제를 통한 모든 세션 강제 로그아웃 처리 (💡 보안 강화를 위해 추가)
-	// 	refreshTokenRepository.deleteByUserId(foundUser.getUserId());
+		// 💡 [수정된 로직]: Refresh Token 삭제를 통한 모든 세션 강제 로그아웃 처리 (보안 강화)
+		// 1. 해당 userId와 연결된 모든 Refresh Token을 DB에서 조회
+		// List<RefreshToken> tokensToDelete = refreshTokenRepository.findAllByUserId(foundUser.getUserId());
 
-	// 	log.info("비밀번호 재설정 성공 및 기존 Refresh Token 삭제 완료: ID={}", foundUser.getId());
+		// if (!tokensToDelete.isEmpty()) {
+		// 		// 2. 조회된 모든 토큰 엔티티를 삭제 (JpaRepository의 deleteAll 사용)
+		// 		refreshTokenRepository.deleteAll(tokensToDelete);
+		// 		log.info("비밀번호 재설정 성공: 기존 Refresh Token {}개 강제 삭제 완료.", tokensToDelete.size());
+		// } else {
+		// 		log.info("비밀번호 재설정 성공: 삭제할 Refresh Token이 없습니다.");
+		// }
+		    // 💡 [수정된 최적화 로직]: Refresh Token 삭제를 통한 모든 세션 강제 로그아웃 처리 (단일 쿼리)
+    // RefreshTokenRepository의 @Modifying이 적용된 메서드를 호출하여 단번에 삭제합니다.
+    int deletedCount = refreshTokenRepository.deleteByUserId(foundUser.getUserId());
 
-	// 	return UserPasswordResetResponse.success(requestDto.getUserId());
-	// }
-    @Transactional
-public UserPasswordResetResponse resetPassword(UserPasswordResetRequest requestDto){
-    log.info("=== 비밀번호 재설정 서비스 시작. 사용자 ID: {} ===", requestDto.getUserId());
-    
-    // 사용자 ID와 휴대폰 번호로 사용자 인증
-    Optional<User> userOptional = userRepository.findByUserIdAndPhoneNumber(
-        requestDto.getUserId(),
-        requestDto.getPhoneNumber()
-    );
-
-    User foundUser = userOptional.orElseThrow(() -> {
-        log.warn("비밀번호 재설정 실패: ID 또는 휴대폰 번호가 일치하는 회원이 없습니다. UserId: {}", requestDto.getUserId());
-        throw new AuthenticationException("입력 정보와 일치하는 계정이 없습니다."); 
-    });
-
-    // 새 비밀번호 암호화 후 엔티티 업데이트
-    String encodeNewPassword = passwordEncoder.encode(requestDto.getNewPassword());
-    foundUser.updatePassword(encodeNewPassword); 
-    
-    // 💡 [수정된 로직]: Refresh Token 삭제를 통한 모든 세션 강제 로그아웃 처리 (보안 강화)
-    // 1. 해당 userId와 연결된 모든 Refresh Token을 DB에서 조회
-    List<RefreshToken> tokensToDelete = refreshTokenRepository.findAllByUserId(foundUser.getUserId());
-
-    if (!tokensToDelete.isEmpty()) {
-        // 2. 조회된 모든 토큰 엔티티를 삭제 (JpaRepository의 deleteAll 사용)
-        refreshTokenRepository.deleteAll(tokensToDelete);
-        log.info("비밀번호 재설정 성공: 기존 Refresh Token {}개 강제 삭제 완료.", tokensToDelete.size());
+    if (deletedCount > 0) {
+        log.info("비밀번호 재설정 성공: 기존 Refresh Token {}개 강제 삭제 완료.", deletedCount);
     } else {
         log.info("비밀번호 재설정 성공: 삭제할 Refresh Token이 없습니다.");
     }
-    
-    log.info("비밀번호 재설정 및 세션 무효화 완료: ID={}", foundUser.getId());
+		
+		log.info("비밀번호 재설정 및 세션 무효화 완료: ID={}", foundUser.getId());
 
-    return UserPasswordResetResponse.success(requestDto.getUserId());
-}
+		return UserPasswordResetResponse.success(requestDto.getUserId());
+	}
+
+
 }
