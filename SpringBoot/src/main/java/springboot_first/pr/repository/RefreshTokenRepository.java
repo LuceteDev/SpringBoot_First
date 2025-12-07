@@ -16,7 +16,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 	@Query("DELETE FROM RefreshToken rt WHERE rt.userId = :userId") // 💡 JPQL 쿼리 명시
 	int deleteByUserId(String userId); // return 타입은 삭제된 row 수 (int)
   
-	// ✅ 1. 처음 로그아웃 구현시 위 int 로는 실패해서 아래 list를 했으나, 회원탈퇴에는 사용해야 해서 지금은 주석처리
+	// ✅ 1. 처음 로그아웃 구현시 위 deleteByUserId 에 @Query 를 사용하지 않아서 임시로 list<>형태로 사용
 	// List<RefreshToken> findAllByUserId(String userId);
 
 	// ✅ 2. 로그인 시 Refresh Token을 저장하거나 갱신할 때 기존 토큰이 있는지 조회

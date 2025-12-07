@@ -42,7 +42,10 @@ public interface UserRepository extends JpaRepository<User, Long>{
   // // 사용자 ID와 휴대폰 번호가 일치하는 계정을 찾아 신원 확인 (비밀번호 변경 전 검증 단계)
   // Optional<User> findByUserIdAndPhoneNumber(String userId, String phoneNumber);
 
-    // Soft Delete 적용: deletedAt이 NULL인(삭제되지 않은) 사용자만 체크
+  // Soft Delete 적용: deletedAt이 NULL인(삭제되지 않은) 사용자만 체크
+  // ✅ user 엔티티에 @Where(clause = "deleted_at IS NULL")를 사용하면 좀 더 간단!
+  // 이 엔티티를 조회하는 모든 쿼리에 이 조건이 자동 추가됨
+  
   @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM User u WHERE u.userId = :userId AND u.deletedAt IS NULL")
   boolean existsByUserId(String userId);
   

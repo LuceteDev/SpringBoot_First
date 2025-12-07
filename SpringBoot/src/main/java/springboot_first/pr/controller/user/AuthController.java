@@ -189,7 +189,7 @@ public class AuthController {
 	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 비인증 사용자 로직 (Spring Security 미적용) 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
 	/**
-	 * POST /api/auth/register : 회원 가입
+	 * POST /api/auth/register : ✅ 회원 가입
 	 * @param request 유효성 검사가 적용된 회원가입 요청 DTO
 	 * @return HTTP 201 Created와 응답 DTO
 	 */
@@ -205,7 +205,7 @@ public class AuthController {
 	
 
 	/**
-	 * POST /api/auth/login : 로그인 및 Access Token/Refresh Token 발급
+	 * POST /api/auth/login : ✅ 로그인 및 Access Token/Refresh Token 발급
 	 * @param request 유효성 검사가 적용된 로그인 요청 DTO
 	 * @return HTTP 200 OK와 토큰 포함 응답 DTO
 	 */
@@ -221,7 +221,7 @@ public class AuthController {
 
 
 	/**
-	 * POST /api/auth/find-id : 사용자 ID 찾기 (휴대폰 번호와 본명으로)
+	 * POST /api/auth/find-id : ✅ 사용자 ID 찾기 (휴대폰 번호와 본명으로)
 	 * @param request 유효성 검사가 적용된 ID 찾기 요청 DTO
 	 * @return HTTP 200 OK와 마스킹된 ID 포함 응답 DTO
 	 */
@@ -237,7 +237,7 @@ public class AuthController {
 
 
 	/**
-	 * PATCH /api/auth/password/reset : 비밀번호 재설정/초기화
+	 * PATCH /api/auth/password/reset : ✅ 비밀번호 재설정/초기화
 	 * @param requestDto 유효성 검사가 적용된 비밀번호 재설정 요청 DTO (ID, 폰번호, 새 비밀번호 포함)
 	 * @return HTTP 200 OK와 성공 메시지 포함 응답 DTO
 	 */
@@ -283,7 +283,7 @@ public class AuthController {
 
 
 	/**
-	 * POST /api/auth/logout : 로그아웃 처리
+	 * POST /api/auth/logout : ✅로그아웃 처리
 	 * Access Token으로 인증을 수행하며, @AuthenticationPrincipal로 userId를 추출하여
 	 * DB에 저장된 Refresh Token을 무효화합니다.
 	 * @param userId Access Token의 payload에서 추출된 사용자 ID

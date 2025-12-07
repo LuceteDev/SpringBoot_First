@@ -94,25 +94,31 @@ public class User {
 				.build();
 	}
 
-	// 💡 비밀번호 재설정을 위한 setter 대용 메서드
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 비밀번호 변경 + 재설정 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+	// 💡 비밀번호 변경을 위한 setter 대용 메서드
 	public void setPassword(String newEncodedPassword) {
 		this.password = newEncodedPassword;
+        log.info("User 엔티티 비밀번호 변경 메서드 setPassword 호출");
 	}
 
     // 💡 비밀번호 재설정을 위한 전용 메서드 (Setter 사용을 지양하고 의도를 명확히 함)
     public void updatePassword(String encodeNewPassword) {
         this.password = encodeNewPassword; // 👈 비밀번호 필드 업데이트 구현
-        log.debug("User 엔티티 비밀번호 필드 업데이트 완료");
+        log.info("User 엔티티 비밀번호 재설정 메서드 updatePassword 호출");
     }
 
     // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ SOFT DELETE 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-    // @Column(name = "deleted_at")을 사용하여 DB 컬럼명 지정
+    // 을 사용하여 DB 컬럼명 지정
     // Soft Delete 구현을 위해 LocalDateTime을 사용
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt; 
 
     // Soft Delete 적용을 위한 메서드 추가 (엔티티 내부에서 상태 변경)
     public void markAsDeleted() {
         this.deletedAt = LocalDateTime.now();
+        log.info("User 엔티티 Soft Delete 처리 완료. deletedAt: {}", this.deletedAt);
     }
 }

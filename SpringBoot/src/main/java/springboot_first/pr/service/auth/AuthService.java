@@ -391,24 +391,10 @@ public class AuthService {
 
 	@Transactional
 	public void logout(String userId) {
-			log.info("로그아웃 요청 수신. User ID: {}", userId);
-			
-			// 1. 해당 userId와 연결된 모든 Refresh Token을 DB에서 조회합니다.
-			// List<RefreshToken> tokensToDelete = refreshTokenRepository.findAllByUserId(userId);
-			
-			// if (!tokensToDelete.isEmpty()) {
-			// 		int deletedCount = tokensToDelete.size();
-					
-			// 		// 2. 조회된 모든 토큰 엔티티를 삭제합니다. (JPA 표준 삭제)
-			// 		refreshTokenRepository.deleteAll(tokensToDelete);
+		log.info("로그아웃 요청 수신. User ID: {}", userId);
 
-			// 		log.info("User ID: {}의 Refresh Token 무효화 완료. 삭제된 토큰 수: {}", userId, deletedCount);
-			// } else {
-			// 		log.warn("User ID: {}에 대해 무효화할 Refresh Token이 존재하지 않습니다.", userId);
-			// }
-
-			    // 💡 1. RefreshTokenRepository의 deleteByUserId 메서드를 직접 호출합니다.
-    // 이는 하나의 DELETE SQL 쿼리를 실행하여 해당 userId의 모든 토큰을 한 번에 삭제합니다.
+		// 💡 1. RefreshTokenRepository의 deleteByUserId 메서드를 직접 호출
+    // 이는 하나의 DELETE SQL 쿼리를 실행하여 해당 userId의 모든 토큰을 한 번에 삭제
     int deletedCount = refreshTokenRepository.deleteByUserId(userId);
     
     // 2. 로그 기록

@@ -12,11 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import springboot_first.pr.dto.response.CommonResponse;
 import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
-import springboot_first.pr.dto.userDTO.request.UserPasswordResetRequest;
 import springboot_first.pr.dto.userDTO.request.UserWithdrawalRequest;
-import springboot_first.pr.dto.userDTO.response.UserPasswordChangeResponse;
-import springboot_first.pr.dto.userDTO.response.UserPasswordResetResponse;
 import springboot_first.pr.dto.userDTO.response.UserWithdrawalResponse;
 import springboot_first.pr.service.user.UserService;
 
@@ -24,25 +22,25 @@ import springboot_first.pr.service.user.UserService;
 @RestController // 1️⃣컨트롤러 선언 
 @RequiredArgsConstructor  // 2️⃣ 👍 생성자 자동 생성 -> @Autowired 대신 많이 사용한다고 함
 @RequestMapping("/api/user") // 3️⃣ 기본 경로 설정
-public class UserController {
+public class UserController { // ✅ 로그인 후 회원 로직
 
   // 4️⃣ 서비스 주입
   private final UserService userService;
 
-  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 로그인 후 회원 로직 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 비밀번호 변경 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-  // @PatchMapping("/password/change")
-  // public ResponseEntity<UserPasswordChangeResponse> changePassword(
-  //   @AuthenticationPrincipal String authenticatedUserId, // JWT/세션 기반 인증에서 ID를 자동으로 가져옴
-  //   @Valid @RequestBody UserPasswordChangeRequest requestDto) {
+  @PatchMapping("/password/change")
+  public ResponseEntity<CommonResponse<?>> changePassword(
+    @AuthenticationPrincipal String authenticatedUserId, // JWT/세션 기반 인증에서 ID를 자동으로 가져옴
+    @Valid @RequestBody UserPasswordChangeRequest requestDto) {
     
-  //   log.info("비밀번호 변경 요청 접수 - 인증된 ID: {}", authenticatedUserId);
+    log.info("비밀번호 변경 요청 접수 - 인증된 ID: {}", authenticatedUserId);
     
-  //   // 1️⃣ 서비스에 위임하여 DB에 비밀번호 변경
-  //   UserPasswordChangeResponse response = userService.changePassword(authenticatedUserId, requestDto);
+    // 1️⃣ 서비스에 위임하여 DB에 비밀번호 변경
+    CommonResponse response = userService.changePassword(authenticatedUserId, requestDto);
     
-  //   return ResponseEntity.status(HttpStatus.OK).body(response);
-  // }
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 회원 탈퇴 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
   @DeleteMapping("/withdrawal") // DELETE HTTP 메서드 사용
