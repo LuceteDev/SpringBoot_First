@@ -45,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
   // Soft Delete 적용: deletedAt이 NULL인(삭제되지 않은) 사용자만 체크
   // ✅ user 엔티티에 @Where(clause = "deleted_at IS NULL")를 사용하면 좀 더 간단!
   // 이 엔티티를 조회하는 모든 쿼리에 이 조건이 자동 추가됨
-  
+
   @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM User u WHERE u.userId = :userId AND u.deletedAt IS NULL")
   boolean existsByUserId(String userId);
   
@@ -82,7 +82,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
   Optional<User> findByUserIdAndPhoneNumber(String userId, String phoneNumber);
 
 
-  // 💡 [추가] 회원 탈퇴 (Soft Delete) 구현을 위한 벌크 UPDATE 쿼리
+  // 💡 회원 탈퇴 (Soft Delete) 구현을 위한 벌크 UPDATE 쿼리
   @Modifying // UPDATE 쿼리이므로 필수
   @Transactional // 쓰기 작업이므로 필수,⚠️ Repository의 벌크(Bulk) 연산에는 필수
   @Query("UPDATE User u SET u.deletedAt = CURRENT_TIMESTAMP WHERE u.userId = :userId AND u.deletedAt IS NULL")

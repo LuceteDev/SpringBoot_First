@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +13,8 @@ import lombok.ToString;
 import lombok.With;
 
 // 1️⃣ 어노테이션 선언
-@AllArgsConstructor // 모든 필드를 매개변수로 갖는 생성자 자동 생성
-@NoArgsConstructor // 매개변수가 아예 없는 기본 생성자 자동 생성
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // private : @Builder 어노테이션이 정상적으로 작동하기 위한 보조 역할, 외부 생성 차단
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // 생성자의 접근 권한을 protected로 설정해서 외부 생성 차단, JPA는 허용하도록 설정
 @Getter // 각 필드 값을 조회할 수 있는 Getter 메서드 자동 생성
 @ToString // 모든 필드를 출력할 수 있는 toString 메서드 자동 생성
 @Builder // DTO 생성을 위한 빌더 패턴 추가

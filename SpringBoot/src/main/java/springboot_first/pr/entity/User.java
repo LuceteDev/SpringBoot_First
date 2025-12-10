@@ -26,9 +26,9 @@ import springboot_first.pr.dto.userDTO.request.UserRegisterRequest;
 @ToString(exclude = "password") // pw 필드를 제외하고 모든 필드를 출력할 수 있는 toString 메서드 자동 생성
 @Builder // 서비스에서 엔티티 생성 시 훨씬 편함
 @Slf4j // 로깅 추가
-@Table(name = "users") // 👈 (중요) 실제 DB 테이블 이름인 "users"를 지정했습니다.
-@AllArgsConstructor(access = AccessLevel.PRIVATE) // 모든 필드를 매개변수로 갖는 생성자 자동 생성
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // 매개변수가 아예 없는 기본 생성자 자동 생성
+@Table(name = "users") // ⚠️ (중요) 실제 DB 테이블 이름인 "users"를 지정
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // private : @Builder 어노테이션이 정상적으로 작동하기 위한 보조 역할, 외부 생성 차단
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // 생성자의 접근 권한을 protected로 설정해서 외부 생성 차단, JPA는 허용하도록 설정
 // ✔ JPA 규칙 준수, 엔티티 생성 ∙ 수정 규칙 강제, 나중에 유지보수할 때 버그 확률 급감
 
 public class User {

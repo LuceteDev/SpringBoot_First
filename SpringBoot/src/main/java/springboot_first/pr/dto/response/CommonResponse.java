@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 // API 요청 성공/실패 시 공통으로 사용되는 표준 응답 구조입니다.
 @Getter
@@ -14,6 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Slf4j
 public class CommonResponse<T> {
 
     // 1. 비즈니스 로직의 성공/실패 여부 (필수)
@@ -34,6 +36,7 @@ public class CommonResponse<T> {
     // ===============================================
 
     public static <T> CommonResponse<T> success(String message, T data) {
+        log.info("success : 공통응답 DTO String message, T data 호출");
         return CommonResponse.<T>builder()
                 .success(true)
                 .message(message)
@@ -47,6 +50,7 @@ public class CommonResponse<T> {
     // ===============================================
 
     public static CommonResponse<?> success(String message) {
+        log.info("success : 공통응답 DTO String message 호출");
         return CommonResponse.builder()
                 .success(true)
                 .message(message)
@@ -60,6 +64,7 @@ public class CommonResponse<T> {
     // ===============================================
     
     public static CommonResponse<?> failure(String message) {
+        log.info("failure : 공통응답 DTO String message 호출");
         return CommonResponse.builder()
                 .success(false)
                 .message(message)

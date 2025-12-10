@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Spring Security에서 인증되지 않은 사용자(토큰이 없거나 무효한 사용자)가 
- * 보호된 리소스에 접근하려 할 때 호출되는 핸들러입니다.
+ * Spring Security에서 인증되지 않은 사용자(토큰이 없거나 무효한 사용자)가 보호된 리소스에 접근하려 할 때 호출되는 핸들러입니다.
  */
 @Slf4j
 @Component

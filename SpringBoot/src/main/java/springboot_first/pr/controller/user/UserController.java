@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.response.CommonResponse;
 import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
 import springboot_first.pr.dto.userDTO.request.UserWithdrawalRequest;
-import springboot_first.pr.dto.userDTO.response.UserWithdrawalResponse;
 import springboot_first.pr.service.user.UserService;
 
 @Slf4j
@@ -37,24 +36,22 @@ public class UserController { // ✅ 로그인 후 회원 로직
     log.info("비밀번호 변경 요청 접수 - 인증된 ID: {}", authenticatedUserId);
     
     // 1️⃣ 서비스에 위임하여 DB에 비밀번호 변경
-    CommonResponse response = userService.changePassword(authenticatedUserId, requestDto);
+    CommonResponse<?> response = userService.changePassword(authenticatedUserId, requestDto);
     
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ ✅ 회원 탈퇴 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
   @DeleteMapping("/withdrawal") // DELETE HTTP 메서드 사용
-  public ResponseEntity<UserWithdrawalResponse> withdraw(
+  public ResponseEntity<CommonResponse<?>> withdraw(
           // Access Token에서 추출된 userId를 @AuthenticationPrincipal로 받습니다.
           @AuthenticationPrincipal String userId, 
           @Valid @RequestBody UserWithdrawalRequest requestDto
   ) {
       log.info("회원 탈퇴 API 요청 수신. Target UserId: {}", userId);
       
-      UserWithdrawalResponse response = userService.withdraw(userId, requestDto);
+      CommonResponse<?> response = userService.withdraw(userId, requestDto);
       return ResponseEntity.ok(response);
   }
-
-
 
 }

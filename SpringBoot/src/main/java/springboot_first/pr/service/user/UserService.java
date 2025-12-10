@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.response.CommonResponse;
 import springboot_first.pr.dto.userDTO.request.UserPasswordChangeRequest;
 import springboot_first.pr.dto.userDTO.request.UserWithdrawalRequest;
-import springboot_first.pr.dto.userDTO.response.UserWithdrawalResponse;
 import springboot_first.pr.entity.User;
 import springboot_first.pr.exception.AuthenticationException;
 import springboot_first.pr.repository.RefreshTokenRepository;
@@ -69,7 +68,7 @@ private final PasswordEncoder passwordEncoder;
 	// 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 7️⃣ 회원 탈퇴 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
     @Transactional
-    public UserWithdrawalResponse withdraw(String userId, UserWithdrawalRequest requestDto) {
+    public CommonResponse<?> withdraw(String userId, UserWithdrawalRequest requestDto) {
         log.info("회원 탈퇴 서비스 시작. UserId: {}", userId);
         
         // 1. 사용자 존재 여부 확인
@@ -104,7 +103,7 @@ private final PasswordEncoder passwordEncoder;
         
         log.info("회원 탈퇴 (Soft Delete) 및 세션 무효화 최종 완료: UserId={}", userId);
 
-        return UserWithdrawalResponse.success(userId);
+        return CommonResponse.success(userId);
     }
 
 }
