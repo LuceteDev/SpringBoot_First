@@ -51,4 +51,23 @@ public class PostService {
     }
 
 
+    /**
+     * 2️⃣ 게시글 목록 조회 (READ - Pagination)
+     * ⚠️ 현업에서 가장 중요하며, Pageable 객체를 그대로 Repository로 전달‼️
+     * ⚠️ 여기에 트랜잭션을 명시하지 않고, 읽기 전용 트랜잭션 기본 설정을 클래스 레벨 설정으로 대체할 수 도 있다‼️
+     */
+    // @Transactional(readOnly = true) // ⚠️ 클래스 레벨 설정으로 대체 가능
+    public Page<PostListResponse> findAllPosts(Pageable pageable) {
+
+        // 1️⃣ Repository에서 페이징 처리된 Post 목록을 조회
+        // ⚠️ Pageable 객체 덕분에 Repository가 SQL의 LIMIT/OFFSET을 자동으로 처리해줌‼️
+        Page<Post> postPage = postRepository.findAll(pageable); // ⬅️ 상속받은 메서드 사용
+        
+
+        // 2️⃣ Post(Entity) Page를 PostListResponse(DTO) Page로 변환하여 반환
+        // ⚠️.map() 메서드는 각 엔티티를 DTO로 변환하면서 페이징 정보(총 페이지 수, 전체 개수 등)는 그대로 유지합니다.
+        return postPage.map(PostListResponse::from);
+    }
+
+
 }

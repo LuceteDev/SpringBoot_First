@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() 
 
                 // ✅ 게시글 조회 (GET)은 인증 없이 모두 접근 허용 (비회원도 게시글을 볼 수 있도록)
-                .requestMatchers(HttpMethod.POST, "/api/posts/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 
                 // 나머지 모든 요청은 인증(로그인/토큰 유효)을 요구합니다.
                 .anyRequest().authenticated() 
