@@ -20,10 +20,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Slf4j
 @RestController // 1️⃣컨트롤러 선언 
@@ -104,4 +107,31 @@ public class PostController {
           .status(HttpStatus.OK)
           .body(commonResponse);
   }
+
+
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+  /**
+   * 3️⃣ 게시글 상세 조회 API
+   */
+  @GetMapping("/{postId}")
+  public ResponseEntity<CommonResponse<PostDetailResponse>> findPostDetail(@PathVariable Long postId) {
+   
+    log.info("GET 게시글 상세 조회 요청 접수. 접근 게시글 ID: {}", postId);
+
+    // 1️⃣ Service 계층 호출
+    PostDetailResponse responseDTO = postService.findPostById(postId);
+
+    // 2️⃣ 응답 포장 (HTTP OK)
+    CommonResponse<PostDetailResponse> commonResponse = CommonResponse.success(
+        "게시글을 성공적으로 조회했습니다.",
+        responseDTO
+    );
+    log.info("게시글 상세 조회 응답 성공. : {}", responseDTO.getTitle());
+
+    return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
+
+  }
+  
 }

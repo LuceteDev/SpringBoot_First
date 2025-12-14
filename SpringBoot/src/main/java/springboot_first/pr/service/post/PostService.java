@@ -12,7 +12,7 @@ import springboot_first.pr.dto.postDTO.response.PostListResponse;
 import springboot_first.pr.entity.Post;
 import springboot_first.pr.entity.User;
 import springboot_first.pr.exception.AuthenticationException;
-// import springboot_first.pr.exception.ResourceNotFoundException;
+import springboot_first.pr.exception.ResourceNotFoundException;
 import springboot_first.pr.repository.PostRepository;
 import springboot_first.pr.repository.UserRepository;
 import java.util.Objects; // 권한 확인을 위해 Objects.equals() 사용 예정
@@ -51,6 +51,9 @@ public class PostService {
     }
 
 
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
     /**
      * 2️⃣ 게시글 목록 조회 (READ - Pagination)
      * ⚠️ 현업에서 가장 중요하며, Pageable 객체를 그대로 Repository로 전달‼️
@@ -68,6 +71,24 @@ public class PostService {
         // ⚠️.map() 메서드는 각 엔티티를 DTO로 변환하면서 페이징 정보(총 페이지 수, 전체 개수 등)는 그대로 유지합니다.
         return postPage.map(PostListResponse::from);
     }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+    /**
+     * 3️⃣ 게시글 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public PostDetailResponse findPostById(Long postId){
+        
+        // 1️⃣ 게시글 ID로 조회, 없으면 예외처리 발생하기
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("해당 게시글을 찾을 수 없습니다. ID : " + postId));
+
+        // 2️⃣ 응답 DTO로 변환하여 반환하기
+        return PostDetailResponse.from(post);
+    }
+
 
 
 }

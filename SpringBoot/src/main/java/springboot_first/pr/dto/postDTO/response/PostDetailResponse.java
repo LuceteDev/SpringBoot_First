@@ -26,7 +26,6 @@ public class PostDetailResponse {
   private String content;
   
   // 작성자 정보 (User 엔티티에서 필요한 필드만 가져와 노출)
-  private Long authorId;
   private String authorUserId; // 로그인 ID (userId)
   private String authorUsername; // 사용자 이름 (username)
 
@@ -39,8 +38,7 @@ public class PostDetailResponse {
               .postId(post.getId())
               .title(post.getTitle())
               .content(post.getContent())
-              // ⚠️ 연관관계 User 엔티티에서 정보를 가져옵니다.
-              .authorId(post.getUser().getId())
+              // ⚠️ 연관관계 User 엔티티에서 정보를 가져오기
               .authorUserId(post.getUser().getUserId())
               .authorUsername(post.getUser().getUsername())
               .createdAt(post.getCreatedAt())

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import springboot_first.pr.exception.DuplicateUserException;
 import springboot_first.pr.exception.InvalidCredentialException;
-
+import springboot_first.pr.exception.ResourceNotFoundException;
 // 💡 테스트 코드에서 사용하는 커스텀 예외로 임포트
 import springboot_first.pr.exception.AuthenticationException; 
 
@@ -24,7 +24,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 💡 1. DTO 유효성 검사 실패 처리 (@Valid 관련 예외) - 400 Bad Request
+    // 💡 1️⃣ DTO 유효성 검사 실패 처리 (@Valid 관련 예외) - 400 Bad Request
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400
     }
 
-    // 💡 2. 사용자 정의 예외 처리: 중복 회원가입 등 잘못된 요청 - 400 Bad Request
+    // 💡 2️⃣ 사용자 정의 예외 처리: 중복 회원가입 등 잘못된 요청 - 400 Bad Request
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateUserException(DuplicateUserException ex) {
         log.error("사용자 정의 예외 (400 - Duplicate User): {}", ex.getMessage());
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 💡 3. 사용자 정의 예외 처리: 로그인 실패, ID 찾기 실패 등 인증/자격 증명 실패 - 401 Unauthorized
+     * 💡 3️⃣ 사용자 정의 예외 처리: 로그인 실패, ID 찾기 실패 등 인증/자격 증명 실패 - 401 Unauthorized
      * InvalidCredentialException과 AuthenticationException을 통합하여 처리합니다.
      */
     @ExceptionHandler({InvalidCredentialException.class, AuthenticationException.class})
@@ -64,8 +64,31 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401
     }
+
+    /**
+     * 💡 4️⃣ 사용자 정의 예외 처리: 리소스를 찾을 수 없을 때 - 404 Not Found
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        log.warn("사용자 정의 예외 (404 Not Found): {}", ex.getMessage());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        
+        // 🚨 리소스를 찾을 수 없음을 나타내는 404 상태 코드 반환
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404
+    }
+
+
+
+
+
+
+
+
+
     
-    // 💡 4. 그 외 예상치 못한 모든 RuntimeException 처리 - 500 Internal Server Error
+    // 💡  그 외 예상치 못한 모든 RuntimeException 처리 - 500 Internal Server Error
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleGenericRuntimeException(RuntimeException ex) {
         log.error("예상치 못한 RuntimeException 발생 (500): ", ex);
@@ -76,7 +99,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500
     }
 
-    // 💡 5. 최상위 일반 예외 (Exception) 처리 - 500 Internal Server Error
+    // 💡  최상위 일반 예외 (Exception) 처리 - 500 Internal Server Error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
         log.error("최상위 예상치 못한 예외 발생 (500): ", ex);

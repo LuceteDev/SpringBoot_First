@@ -21,7 +21,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByTitleContaining(String title, Pageable pageable);
     
 
-    // 〰️〰️〰️ 💠 게시글 검색 〰️〰️〰️ //
+    // 〰️〰️〰️ 💠 특정 게시글 목록 검색 〰️〰️〰️ //
 
     // 4️⃣ 작성자 ID를 이용한 검색 기능 (페이지네이션 적용)
     // - User 엔티티의 userId 필드를 기준으로 검색 (연관관계 탐색)
