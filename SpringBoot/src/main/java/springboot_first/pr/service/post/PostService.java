@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.postDTO.request.PostCreateRequest;
 import springboot_first.pr.dto.postDTO.request.PostUpdateRequest;
 import springboot_first.pr.dto.postDTO.response.PostDetailResponse;
@@ -17,6 +18,7 @@ import springboot_first.pr.repository.PostRepository;
 import springboot_first.pr.repository.UserRepository;
 import java.util.Objects; // 권한 확인을 위해 Objects.equals() 사용 예정
 
+@Slf4j
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자 자동 주입 (Dependency Injection)
 @Transactional(readOnly = true) // 읽기 전용 트랜잭션 기본 설정
@@ -90,5 +92,37 @@ public class PostService {
     }
 
 
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    /**
+     * 4️⃣ 게시글 수정하기 (UPDATE)
+     * 인가(Authorization) 로직 포함: 요청한 사용자가 작성자인지 확인
+     */
+    @Transactional
+    public PostDetailResponse updatePost(
+        Long postId, // 1️⃣ 수정할 게시글 ID (Path Variable로 조회)
+        String currentUserId, // 2️⃣ 현재 로그인 사용자 ID (Security Context/Principal에서 추출)
+        PostUpdateRequest request) // 4️⃣ 수정 요청 데이터 (DTO)
+    {
+        // 1️⃣ 게시글 조회 (수정 대상)
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("해당 게시글을 찾을 수 없습니다. ID: " + postId));
+            
+        log.info("수정할 게시글 찾기 완료 후 post = {}", post);
+        log.info("수정할 게시글 찾기 완료 후 post = {}", post.getUser());
+        // 2️⃣ ⚠️ 인가(Authorization) 확인: 요청 사용자와 작성자 일치 검증
+        // post.getUser().getId()는 게시글 작성자의 PK(Long)입니다.
+        if (!post.getUser().getUserId().equals(currentUserId)) {
+                throw new AuthenticationException("수정 권한이 없습니다. 작성자만 수정 가능합니다.");
+            }
+        
+        // 3️⃣ 엔티티 내부의 비즈니스 메서드를 통해 데이터 변경 (Dirty Checking 활용)
+        // post.update()를 호출하여 메모리상의 객체 상태만 변경
+        post.update(request.getTitle(), request.getContent());
+        
+        // 4️⃣ 응답 DTO로 변환하여 반환 (수정된 게시글의 상세 정보)
+        // @Transactional에 의해 메서드 종료 시 DB에 변경사항(title, content, updatedAt) 자동 반영됨
+        return PostDetailResponse.from(post);
+    }
 
 }

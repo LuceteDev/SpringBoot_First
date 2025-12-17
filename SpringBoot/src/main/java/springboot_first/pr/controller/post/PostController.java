@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.postDTO.request.PostCreateRequest;
+import springboot_first.pr.dto.postDTO.request.PostUpdateRequest;
 import springboot_first.pr.dto.postDTO.response.PostDetailResponse;
 import springboot_first.pr.dto.postDTO.response.PostListResponse;
 import springboot_first.pr.dto.response.CommonResponse;
@@ -20,10 +21,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -134,4 +136,41 @@ public class PostController {
 
   }
   
+
+  // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+
+    /**
+     * 4️⃣ 게시글 수정 API (PATCH /api/posts/{postId})
+     * - @Valid로 DTO 유효성 검사 수행
+     * - @PathVariable로 수정 대상 ID 획득
+     * - ⚠️ 임시 권한 구현: 현재 로그인 사용자 ID (1번)를 하드코딩하여 서비스에 전달
+     */
+    @PatchMapping("/{postId}") // PATCH /api/posts/123
+    public ResponseEntity<CommonResponse<PostDetailResponse>> updatePost(
+        @PathVariable Long postId, 
+        @Valid @RequestBody PostUpdateRequest request,
+        @AuthenticationPrincipal String currentUserId) // DTO 유효성 검사
+    {
+        
+        log.info("PATCH 게시글 수정 요청 접수. PostId: {}, 요청 사용자 ID: {}", postId, currentUserId);
+        log.debug("수정 요청 데이터: {}", request.toString());
+        
+        // 1. Service 계층 호출
+        // 수정 후, 수정된 게시글의 상세 정보(PostDetailResponse)를 반환받습니다.
+        PostDetailResponse responseDto = postService.updatePost(postId, currentUserId, request); 
+
+        // 2. 응답 포장
+        CommonResponse<PostDetailResponse> commonResponse = CommonResponse.success(
+            "게시글이 성공적으로 수정되었습니다.",
+            responseDto
+        );
+        
+        log.info("게시글 수정 응답 성공: Status 200 OK. PostId: {}, 업데이트 시간: {}", 
+                 responseDto.getPostId(), responseDto.getUpdatedAt());
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(commonResponse);
+    }
 }
