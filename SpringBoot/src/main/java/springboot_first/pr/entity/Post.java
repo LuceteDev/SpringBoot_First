@@ -1,7 +1,10 @@
 package springboot_first.pr.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,6 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 생성자의 접근 권한을 protected로 설정해서 외부 생성 차단, JPA는 허용하도록 설정
 // ✔ JPA 규칙 준수, 엔티티 생성 ∙ 수정 규칙 강제, 나중에 유지보수할 때 버그 확률 급감
 @EntityListeners(AuditingEntityListener.class)
+/* 💡 Soft Delete를 위한 핵심 어노테이션 추가 */
+@SQLDelete(sql = "UPDATE posts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?") // 1️⃣ delete 호출 시 UPDATE 실행
+@SQLRestriction("deleted_at IS NULL")
+
 public class Post {
 
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,6 +72,8 @@ public class Post {
   @LastModifiedDate
   private LocalDateTime updatedAt; // 최종 수정 일자
 
+  private LocalDateTime deletedAt; // 삭제 일자 
+
   public static Post create(String title, String content, User author) {
     log.info("User Entity create() 메서드 호출, title: {}, content: {}, author: {}", title, content, author); 
 
@@ -80,12 +89,21 @@ public class Post {
     }
 
   /**
-   * 비즈니스 로직: 게시글 내용 수정을 위한 메서드
-   * 엔티티 내에서 데이터를 변경하는 것이 객체지향적입니다.
+   * 비즈니스 로직 : 게시글 내용 수정을 위한 메서드
+   * 엔티티 내에서 데이터를 변경하는 것이 객체지향적이라고 한다
    */
   public void update(String title, String content) {
       this.title = title;
       this.content = content;
+  }
+
+  /**
+   * 비즈니스 로직 : 삭제 처리 (비활성화)
+   * 실제로 필드만 업데이트하거나, SQLDelete 어노테이션이 처리하게 함
+   */
+
+  public void delete(){
+    this.deletedAt = LocalDateTime.now();
   }
 
 }

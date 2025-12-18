@@ -20,6 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,7 +140,6 @@ public class PostController {
 
   // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
 
-
     /**
      * 4️⃣ 게시글 수정 API (PATCH /api/posts/{postId})
      * - @Valid로 DTO 유효성 검사 수행
@@ -156,11 +156,11 @@ public class PostController {
         log.info("PATCH 게시글 수정 요청 접수. PostId: {}, 요청 사용자 ID: {}", postId, currentUserId);
         log.debug("수정 요청 데이터: {}", request.toString());
         
-        // 1. Service 계층 호출
+        // 1️⃣ Service 계층 호출
         // 수정 후, 수정된 게시글의 상세 정보(PostDetailResponse)를 반환받습니다.
         PostDetailResponse responseDto = postService.updatePost(postId, currentUserId, request); 
 
-        // 2. 응답 포장
+        // 2️⃣ 응답 포장
         CommonResponse<PostDetailResponse> commonResponse = CommonResponse.success(
             "게시글이 성공적으로 수정되었습니다.",
             responseDto
@@ -173,4 +173,28 @@ public class PostController {
             .status(HttpStatus.OK)
             .body(commonResponse);
     }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    /**
+     * 
+     * @param postId Soft Delete 대상 게시글 ID (Path Variable로 조회)
+     * @param currentUserId 현재 로그인 사용자 ID (Security Context/Principal에서 추출)
+     * @return
+     */
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<CommonResponse<?>> deletePost(
+        @PathVariable Long postId,
+        @AuthenticationPrincipal String currentUserId) { // 💡 실습 환경에 따라 타입(Long/String) 확인 필요
+
+    log.info("DELETE 게시글 삭제 요청 접수. PostId: {}, 사용자: {}", postId, currentUserId);
+
+    // 1️⃣ 서비스 호출
+    postService.deletePost(postId, currentUserId);
+
+    // 2️⃣ 공통 응답 DTO를 이용한 결과 반환
+    return ResponseEntity.ok(CommonResponse.success("게시글이 성공적으로 삭제되었습니다."));
+}
 }

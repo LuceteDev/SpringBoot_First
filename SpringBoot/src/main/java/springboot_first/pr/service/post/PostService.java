@@ -125,4 +125,29 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    /**
+     * 5️⃣ 게시글 삭제하기 (DELETE)
+     * @param postId Soft Delete 대상 게시글 ID (Path Variable로 조회)
+     * @param currentUserId 현재 로그인 사용자 ID (Security Context/Principal에서 추출)
+     */
+
+    @Transactional
+    public void deletePost(Long postId, String currentUserId) {
+    // 1️⃣ 게시글 조회
+    // 💡 엔티티의 @SQLRestriction("deleted_at IS NULL") 덕분에
+    // 이미 삭제된 글은 조회되지 않고 바로 Optional.empty()가 반환됩니다.
+    Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("해당 게시글을 찾을 수 없거나 이미 삭제되었습니다. ID: " + postId));
+
+    // 2️⃣ 인가(Authorization) 확인: 작성자 본인인지 검증
+    if (!post.getUser().getUserId().equals(currentUserId)) {
+        throw new AuthenticationException("게시글 삭제 권한이 없습니다. 작성자만 삭제 가능합니다.");
+    }
+
+    // 3️⃣ Soft Delete 실행
+    // 💡 실제로는 DB에서 행이 삭제되지 않고 @SQLDelete에 작성한 UPDATE 문이 실행됩니다.
+    postRepository.delete(post);
+}
 }
