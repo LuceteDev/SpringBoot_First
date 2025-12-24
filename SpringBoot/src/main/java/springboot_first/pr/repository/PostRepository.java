@@ -3,9 +3,11 @@ package springboot_first.pr.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 import springboot_first.pr.entity.Post;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
 
     // 1️⃣ 기본 CRUD 기능은 JpaRepository 상속으로 자동 제공됨 (save, findById, findAll, delete 등)
 
@@ -16,14 +18,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 〰️〰️〰️ 💠 게시글 목록 조회 〰️〰️〰️ //
 
-    // 3️⃣ 제목이나 내용을 이용한 검색 기능 (페이지네이션 적용)
-    // - 현업에서 자주 쓰는 쿼리 메소드 (제목에 특정 문자열이 포함된 게시글 검색)
-    Page<Post> findByTitleContaining(String title, Pageable pageable);
+    // // 3️⃣ 제목이나 내용을 이용한 검색 기능 (페이지네이션 적용)
+    // // - 현업에서 자주 쓰는 쿼리 메소드 (제목에 특정 문자열이 포함된 게시글 검색)
+    // Page<Post> findByTitleContaining(String title, Pageable pageable);
     
 
-    // 〰️〰️〰️ 💠 특정 게시글 목록 검색 〰️〰️〰️ //
+    // // 〰️〰️〰️ 💠 특정 게시글 목록 검색 〰️〰️〰️ //
 
-    // 4️⃣ 작성자 ID를 이용한 검색 기능 (페이지네이션 적용)
-    // - User 엔티티의 userId 필드를 기준으로 검색 (연관관계 탐색)
-    Page<Post> findByUser_UserIdContaining(String userId, Pageable pageable);
+    // // 4️⃣ 작성자 ID를 이용한 검색 기능 (페이지네이션 적용)
+    // // - User 엔티티의 userId 필드를 기준으로 검색 (연관관계 탐색)
+    // Page<Post> findByUser_UserIdContaining(String userId, Pageable pageable);
 }

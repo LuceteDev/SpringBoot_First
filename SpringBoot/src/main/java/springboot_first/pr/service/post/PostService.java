@@ -2,11 +2,18 @@ package springboot_first.pr.service.post;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.postDTO.request.PostCreateRequest;
+import springboot_first.pr.dto.postDTO.request.PostSearchRequest;
 import springboot_first.pr.dto.postDTO.request.PostUpdateRequest;
 import springboot_first.pr.dto.postDTO.response.PostDetailResponse;
 import springboot_first.pr.dto.postDTO.response.PostListResponse;
@@ -16,6 +23,9 @@ import springboot_first.pr.exception.AuthenticationException;
 import springboot_first.pr.exception.ResourceNotFoundException;
 import springboot_first.pr.repository.PostRepository;
 import springboot_first.pr.repository.UserRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects; // 권한 확인을 위해 Objects.equals() 사용 예정
 
 @Slf4j
@@ -149,5 +159,57 @@ public class PostService {
     // 3️⃣ Soft Delete 실행
     // 💡 실제로는 DB에서 행이 삭제되지 않고 @SQLDelete에 작성한 UPDATE 문이 실행됩니다.
     postRepository.delete(post);
-}
+    }
+
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    /**
+     * 6️⃣ 게시판 통합 검색 (제목, 내용, 작성자 이름)
+     * - 사용자가 입력한 조건이 있는 경우에만 WHERE 절에 조건이 추가됩니다.
+     * - 결과는 페이징 처리되어 반환됩니다.
+     */
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> searchPosts(PostSearchRequest cond, Pageable pageable) {
+        log.info("게시글 통합 검색 시작. 조건: {}, 페이지정보: {}", cond, pageable);
+
+        // 1️⃣ 동적 쿼리 생성 (Specification 사용)
+        Specification<Post> spec = (root, query, cb) -> {
+            // 조건들을 담을 리스트 생성
+            List<Predicate> predicates = new ArrayList<>();
+
+            // ① 제목 검색 조건 추가 (값이 있을 때만)
+            if (StringUtils.hasText(cond.getTitle())) {
+                // WHERE title LIKE %검색어%
+                predicates.add(cb.like(root.get("title"), "%" + cond.getTitle() + "%"));
+            }
+
+            // ② 내용 검색 조건 추가 (값이 있을 때만)
+            if (StringUtils.hasText(cond.getContent())) {
+                // WHERE content LIKE %검색어%
+                predicates.add(cb.like(root.get("content"), "%" + cond.getContent() + "%"));
+            }
+
+            // ③ 작성자 이름(username) 검색 조건 추가 (값이 있을 때만)
+            if (StringUtils.hasText(cond.getUsername())) {
+                // Post 엔티티의 'user' 필드와 조인하여 'username' 필드 확인
+                // WHERE user.username = '검색어'
+                predicates.add(cb.equal(root.get("user").get("username"), cond.getUsername()));
+            }
+
+            // 모든 조건들을 AND로 결합 (조건이 없으면 빈 리스트이므로 전체 조회와 동일하게 동작)
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 2️⃣ 리포지토리 호출
+        // 💡 Repository가 JpaSpecificationExecutor를 상속받았기에 findAll(spec, pageable) 사용 가능!
+        // 💡 엔티티의 @SQLRestriction 덕분에 삭제된 글은 여기서 자동으로 제외됩니다.
+        Page<Post> postPage = postRepository.findAll(spec, pageable);
+
+        // 3️⃣ 엔티티 Page를 DTO Page로 변환하여 반환
+        return postPage.map(PostListResponse::from);
+    }   
+
+
+    
 }

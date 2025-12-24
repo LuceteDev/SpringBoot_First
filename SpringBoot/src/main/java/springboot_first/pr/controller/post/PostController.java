@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import springboot_first.pr.dto.postDTO.request.PostCreateRequest;
+import springboot_first.pr.dto.postDTO.request.PostSearchRequest;
 import springboot_first.pr.dto.postDTO.request.PostUpdateRequest;
 import springboot_first.pr.dto.postDTO.response.PostDetailResponse;
 import springboot_first.pr.dto.postDTO.response.PostListResponse;
@@ -196,5 +197,36 @@ public class PostController {
 
     // 2️⃣ 공통 응답 DTO를 이용한 결과 반환
     return ResponseEntity.ok(CommonResponse.success("게시글이 성공적으로 삭제되었습니다."));
-}
+    }
+
+    // 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ 영역 분리 〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️ //
+
+    /**
+     * 6️⃣ 게시글 통합 검색 API (GET /api/posts/search)
+     * - @ModelAttribute: 쿼리 파라미터(?title=...&username=...)를 DTO 객체로 바인딩
+     * - Pageable: 검색 결과에도 페이지네이션 적용
+     */
+    @GetMapping("/search") // GET /api/posts/search
+    public ResponseEntity<CommonResponse<Page<PostListResponse>>> searchPosts(
+            PostSearchRequest request, // 💡 쿼리 파라미터가 자동으로 DTO의 필드에 매핑됨
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) 
+            Pageable pageable) 
+    {
+        log.info("GET 게시글 통합 검색 요청 접수. 조건: {}, Pageable: {}", request, pageable);
+
+        // 1️⃣ Service 계층 호출 (검색 조건 DTO와 페이징 객체 전달)
+        Page<PostListResponse> responsePage = postService.searchPosts(request, pageable);
+
+        // 2️⃣ 응답 포장
+        CommonResponse<Page<PostListResponse>> commonResponse = CommonResponse.success(
+            "검색 결과를 성공적으로 조회했습니다.",
+            responsePage
+        );
+
+        log.info("게시글 검색 완료. 검색된 총 개수: {}", responsePage.getTotalElements());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(commonResponse);
+    }
 }
